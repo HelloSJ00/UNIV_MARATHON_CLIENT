@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { getRunningRankings, type RunningRank } from "@/app/api/records";
+import { getAllUniversityName } from "@/app/api/getAllUniversityName";
 
 export default function HomePage() {
   const [selectedSchool, setSelectedSchool] = useState("");
@@ -37,18 +38,25 @@ export default function HomePage() {
   const [rankingsData, setRankingsData] = useState<RunningRank[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [isIntegratedRanking, setIsIntegratedRanking] = useState(false);
+  const [universities, setUniversities] = useState<string[]>([]);
+  const [isLoadingUniversities, setIsLoadingUniversities] = useState(true);
   const accessToken = useAuthStore((state) => state.accessToken);
 
-  const schools = [
-    "성균관대학교",
-    "한양대학교",
-    "연세대학교",
-    "고려대학교",
-    "서울대학교",
-    "중앙대학교",
-    "경희대학교",
-    "이화여자대학교",
-  ];
+  // 대학교 목록 가져오기
+  useEffect(() => {
+    const fetchUniversities = async () => {
+      try {
+        const response = await getAllUniversityName();
+        setUniversities(response.data);
+      } catch (error) {
+        console.error("대학교 목록 조회 실패:", error);
+      } finally {
+        setIsLoadingUniversities(false);
+      }
+    };
+
+    fetchUniversities();
+  }, []);
 
   const events = ["TEN_KM", "HALF", "FULL"];
   const genders = [
@@ -65,7 +73,7 @@ export default function HomePage() {
     return data.filter((runner) => runner.user.gender === selectedGender);
   };
 
-  const filteredSchools = schools.filter((school) =>
+  const filteredSchools = universities.filter((school) =>
     school.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -212,15 +220,28 @@ export default function HomePage() {
                         className="mb-2 rounded-xl border-gray-200"
                       />
                     </div>
-                    {filteredSchools.map((school) => (
-                      <SelectItem
-                        key={school}
-                        value={school}
-                        className="rounded-xl"
-                      >
-                        {school}
-                      </SelectItem>
-                    ))}
+                    {isLoadingUniversities ? (
+                      <div className="p-2 text-sm text-gray-500 text-center">
+                        학교 목록을 불러오는 중...
+                      </div>
+                    ) : (
+                      <>
+                        {filteredSchools.map((school) => (
+                          <SelectItem
+                            key={school}
+                            value={school}
+                            className="rounded-xl"
+                          >
+                            {school}
+                          </SelectItem>
+                        ))}
+                        {filteredSchools.length === 0 && (
+                          <div className="p-2 text-sm text-gray-500 text-center">
+                            검색 결과가 없습니다
+                          </div>
+                        )}
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
