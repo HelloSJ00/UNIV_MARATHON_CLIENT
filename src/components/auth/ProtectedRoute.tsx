@@ -15,7 +15,7 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     // 보호된 라우트 목록
-    const protectedRoutes = ["/home", "/profile", "/marathon"];
+    const protectedRoutes = ["/home", "/profile", "/marathon", "/mypage"];
     // 인증이 필요없는 라우트 목록
     const authRoutes = ["/login", "/signup"];
 
@@ -28,7 +28,7 @@ export default function ProtectedRoute({
     // 보호된 라우트에 접근하려고 할 때
     if (protectedRoutes.some((route) => pathname.startsWith(route))) {
       if (!accessToken) {
-        router.replace("/login");
+        router.replace("/");
         return;
       }
     }

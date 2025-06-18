@@ -28,6 +28,31 @@ interface PresignedUrlResponse {
   presignedUrl: string;
 }
 
+export interface RunningRankUser {
+  id: number;
+  name: string;
+  email: string;
+  gender: "MALE" | "FEMALE";
+  universityName: string;
+  studentNumber: string | null;
+  profileImageUrl: string | null;
+}
+
+export interface RunningRank {
+  rank: number;
+  type: "TEN_KM" | "HALF" | "FULL";
+  marathonName: string;
+  recordTimeInSeconds: number;
+  recordDate: string | null;
+  user: RunningRankUser;
+}
+
+export interface RunningRankResponse {
+  status: number;
+  message: string;
+  data: RunningRank[];
+}
+
 export const getRecords = async (): Promise<RecordsResponse> => {
   const { accessToken } = useAuthStore.getState();
 
@@ -118,3 +143,31 @@ export const submitRecord = async (data: SubmitRecordRequest) => {
   console.log("submitRecord - 응답 성공:", responseData);
   return responseData;
 };
+
+export async function getRunningRankings(
+  runningType: "TEN_KM" | "HALF" | "FULL",
+  universityName?: string,
+  gender?: string
+): Promise<RunningRankResponse> {
+  const params = new URLSearchParams({
+    runningType,
+    ...(universityName && { universityName }),
+    ...(gender && { gender }),
+  });
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking?${params}`,
+    {
+      headers: {
+        Authorization: `Bearer ${useAuthStore.getState().accessToken}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("랭킹 조회에 실패했습니다.");
+  }
+  const data = await response.json();
+  console.log(data); // ✅ 출력
+  return data; // ✅ 반환
+}

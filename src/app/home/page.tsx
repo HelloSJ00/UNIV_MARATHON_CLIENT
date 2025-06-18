@@ -21,15 +21,20 @@ import {
   Trophy,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
+import { getRunningRankings, type RunningRank } from "@/app/api/records";
 
 export default function HomePage() {
   const [selectedSchool, setSelectedSchool] = useState("");
-  const [selectedEvent, setSelectedEvent] = useState("");
-  const [selectedGender, setSelectedGender] = useState(""); // 성별 필터 추가
+  const [selectedEvent, setSelectedEvent] = useState<
+    "TEN_KM" | "HALF" | "FULL"
+  >("TEN_KM");
+  const [selectedGender, setSelectedGender] = useState<
+    "MALE" | "FEMALE" | "ALL"
+  >("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const [isLoadingRankings, setIsLoadingRankings] = useState(false);
-  const [rankingsData, setRankingsData] = useState<any[]>([]);
+  const [rankingsData, setRankingsData] = useState<RunningRank[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [isIntegratedRanking, setIsIntegratedRanking] = useState(false);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -47,194 +52,58 @@ export default function HomePage() {
 
   const events = ["TEN_KM", "HALF", "FULL"];
   const genders = [
-    { value: "all", label: "전체" },
-    { value: "male", label: "남성" },
-    { value: "female", label: "여성" },
-  ];
-
-  // Mock 전체 랭킹 데이터 (통합 랭킹용) - 성별 정보 추가
-  const mockIntegratedRankings = [
-    {
-      rank: 1,
-      name: "이준호",
-      school: "한양대학교",
-      time: "2:45:23",
-      gender: "male",
-    },
-    {
-      rank: 2,
-      name: "김민수",
-      school: "성균관대학교",
-      time: "2:47:15",
-      gender: "male",
-    },
-    {
-      rank: 3,
-      name: "박서연",
-      school: "연세대학교",
-      time: "2:48:42",
-      gender: "female",
-    },
-    {
-      rank: 4,
-      name: "정다은",
-      school: "고려대학교",
-      time: "2:49:18",
-      gender: "female",
-    },
-    {
-      rank: 5,
-      name: "최동현",
-      school: "한양대학교",
-      time: "2:50:41",
-      gender: "male",
-    },
-    {
-      rank: 6,
-      name: "강지우",
-      school: "서울대학교",
-      time: "2:52:07",
-      gender: "male",
-    },
-    {
-      rank: 7,
-      name: "윤하늘",
-      school: "중앙대학교",
-      time: "2:53:29",
-      gender: "female",
-    },
-    {
-      rank: 8,
-      name: "임소영",
-      school: "경희대학교",
-      time: "2:54:15",
-      gender: "female",
-    },
-    {
-      rank: 9,
-      name: "조민준",
-      school: "연세대학교",
-      time: "2:55:30",
-      gender: "male",
-    },
-    {
-      rank: 10,
-      name: "한예린",
-      school: "이화여자대학교",
-      time: "2:56:45",
-      gender: "female",
-    },
-  ];
-
-  // Mock 학교별 랭킹 데이터 - 성별 정보 추가
-  const mockSchoolRankings = [
-    {
-      rank: 1,
-      name: "김민수",
-      school: "성균관대학교",
-      time: "2:47:15",
-      gender: "male",
-    },
-    {
-      rank: 2,
-      name: "이서준",
-      school: "성균관대학교",
-      time: "2:52:30",
-      gender: "male",
-    },
-    {
-      rank: 3,
-      name: "박지민",
-      school: "성균관대학교",
-      time: "2:55:18",
-      gender: "female",
-    },
-    {
-      rank: 4,
-      name: "최유진",
-      school: "성균관대학교",
-      time: "2:58:42",
-      gender: "female",
-    },
-    {
-      rank: 5,
-      name: "정민호",
-      school: "성균관대학교",
-      time: "3:02:15",
-      gender: "male",
-    },
-    {
-      rank: 6,
-      name: "김하은",
-      school: "성균관대학교",
-      time: "3:05:30",
-      gender: "female",
-    },
+    { value: "ALL", label: "전체" },
+    { value: "MALE", label: "남성" },
+    { value: "FEMALE", label: "여성" },
   ];
 
   // 성별에 따른 데이터 필터링
-  const filterByGender = (data: any[]) => {
-    if (!selectedGender || selectedGender === "all") {
+  const filterByGender = (data: RunningRank[]) => {
+    if (!selectedGender || selectedGender === "ALL") {
       return data;
     }
-    return data.filter((runner) => runner.gender === selectedGender);
+    return data.filter((runner) => runner.user.gender === selectedGender);
   };
 
   const filteredSchools = schools.filter((school) =>
     school.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // 순위 확인하기 버튼 클릭
-  const handleSearchRankings = () => {
-    // 통합 랭킹이 아닌 경우 학교 선택 필수
-    if (!isIntegratedRanking && !selectedSchool) {
-      alert("학교를 선택해주세요.");
-      return;
-    }
-
-    if (!selectedEvent) {
-      alert("종목을 선택해주세요.");
-      return;
-    }
-
-    if (!selectedGender) {
-      alert("성별을 선택해주세요.");
-      return;
-    }
-
+  const fetchRankings = async () => {
     setIsLoadingRankings(true);
     setHasSearched(true);
 
-    // 서버 요청 시뮬레이션
-    setTimeout(() => {
-      let rawData;
-      if (isIntegratedRanking) {
-        // 통합 랭킹: 전국 모든 대학생 랭킹
-        rawData = mockIntegratedRankings;
-      } else {
-        // 학교별 랭킹: 선택한 학교 내 랭킹
-        rawData = mockSchoolRankings;
-      }
+    try {
+      console.log("랭킹 조회 파라미터:", {
+        runningType: selectedEvent,
+        universityName: searchQuery || undefined,
+        gender: selectedGender,
+      });
 
-      // 성별 필터링 적용
-      const filteredData = filterByGender(rawData);
-
-      // 순위 재정렬 (필터링 후 순위 재계산)
+      const response = await getRunningRankings(
+        selectedEvent,
+        searchQuery || undefined,
+        selectedGender
+      );
+      const filteredData = filterByGender(response.data);
       const rerankedData = filteredData.map((runner, index) => ({
         ...runner,
         rank: index + 1,
       }));
-
       setRankingsData(rerankedData);
+    } catch (error) {
+      console.error("랭킹 조회 실패:", error);
+      alert("랭킹 조회에 실패했습니다.");
+    } finally {
       setIsLoadingRankings(false);
-    }, 1500);
+    }
   };
 
   // 필터 초기화
   const handleResetFilter = () => {
     setSelectedSchool("");
-    setSelectedEvent("");
-    setSelectedGender("");
+    setSelectedEvent("HALF");
+    setSelectedGender("ALL");
     setIsIntegratedRanking(false);
     setRankingsData([]);
     setHasSearched(false);
@@ -252,6 +121,15 @@ export default function HomePage() {
   const getGenderLabel = (value: string) => {
     const gender = genders.find((g) => g.value === value);
     return gender ? gender.label : value;
+  };
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -375,7 +253,12 @@ export default function HomePage() {
                 <label className="text-sm font-medium text-gray-700">
                   종목 선택
                 </label>
-                <Select value={selectedEvent} onValueChange={setSelectedEvent}>
+                <Select
+                  value={selectedEvent}
+                  onValueChange={(value) =>
+                    setSelectedEvent(value as "TEN_KM" | "HALF" | "FULL")
+                  }
+                >
                   <SelectTrigger className="w-full h-12 rounded-2xl border-gray-200 bg-white">
                     <SelectValue placeholder="종목을 선택하세요" />
                   </SelectTrigger>
@@ -399,7 +282,9 @@ export default function HomePage() {
                 </label>
                 <Select
                   value={selectedGender}
-                  onValueChange={setSelectedGender}
+                  onValueChange={(value) =>
+                    setSelectedGender(value as "MALE" | "FEMALE" | "ALL")
+                  }
                 >
                   <SelectTrigger className="w-full h-12 rounded-2xl border-gray-200 bg-white">
                     <SelectValue placeholder="성별을 선택하세요" />
@@ -420,7 +305,7 @@ export default function HomePage() {
               {/* Action Buttons */}
               <div className="flex gap-3">
                 <Button
-                  onClick={handleSearchRankings}
+                  onClick={fetchRankings}
                   disabled={
                     (!isIntegratedRanking && !selectedSchool) ||
                     !selectedEvent ||
@@ -505,7 +390,7 @@ export default function HomePage() {
                 <div className="space-y-3">
                   {rankingsData.map((runner) => (
                     <div
-                      key={`${runner.name}-${runner.rank}`}
+                      key={`${runner.user.id}-${runner.type}`}
                       className="bg-white rounded-2xl p-4 border border-gray-100"
                     >
                       <div className="flex items-center justify-between">
@@ -519,25 +404,27 @@ export default function HomePage() {
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">{runner.name}</span>
+                              <span className="font-medium">
+                                {runner.user.name}
+                              </span>
                               <span
                                 className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                  runner.gender === "male"
+                                  runner.user.gender === "MALE"
                                     ? "bg-blue-100 text-blue-700"
                                     : "bg-pink-100 text-pink-700"
                                 }`}
                               >
-                                {runner.gender === "male" ? "남" : "여"}
+                                {runner.user.gender === "MALE" ? "남" : "여"}
                               </span>
                             </div>
                             <div className="text-sm text-gray-600">
-                              {runner.school}
+                              {runner.user.universityName}
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 text-sm font-mono">
                           <Clock className="w-4 h-4 text-gray-400" />
-                          {runner.time}
+                          {formatTime(runner.recordTimeInSeconds)}
                         </div>
                       </div>
                     </div>
