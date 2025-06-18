@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-
+import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 // import {
@@ -109,10 +109,13 @@ export default function UploadRecordPage() {
             </label>
           ) : (
             <div className="relative">
-              <img
+              <Image
                 src={previewUrl}
                 alt="업로드된 기록증"
-                className="w-full rounded-2xl border border-gray-200"
+                width={600} // Example: Expected width of the certificate (in pixels)
+                height={400} // Example: Expected height (adjust based on aspect ratio)
+                className="w-full rounded-2xl border border-gray-200" // Tailwind classes still apply
+                // priority // (Optional) If this image is crucial for LCP, add this
               />
               <button
                 onClick={handleRemoveImage}

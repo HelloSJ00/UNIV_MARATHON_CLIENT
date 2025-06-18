@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { User, Clock, Trophy, Shield, ShieldCheck, Plus } from "lucide-react";
 import Link from "next/link";
@@ -41,10 +41,13 @@ export default function MyPage() {
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
               {user.profileImageUrl ? (
-                <img
+                <Image
                   src={user.profileImageUrl}
                   alt="프로필"
-                  className="w-full h-full object-cover"
+                  width={100} // 예시: 이미지의 예상 너비 (픽셀)
+                  height={100} // 예시: 이미지의 예상 높이 (픽셀)
+                  className="w-full h-full object-cover" // Tailwind CSS 클래스는 그대로 사용 가능
+                  // priority // LCP에 중요한 이미지라면 추가 (선택 사항)
                 />
               ) : (
                 <User className="w-8 h-8 text-gray-500" />

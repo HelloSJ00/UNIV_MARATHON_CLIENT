@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -198,10 +198,13 @@ export default function SignupPage() {
             <div className="relative">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
                 {profileImage ? (
-                  <img
+                  <Image
                     src={profileImage}
                     alt="프로필"
-                    className="w-full h-full object-cover"
+                    width={100} // 예시: 이미지의 예상 너비 (픽셀)
+                    height={100} // 예시: 이미지의 예상 높이 (픽셀)
+                    className="w-full h-full object-cover" // Tailwind CSS 클래스는 그대로 사용 가능
+                    // priority // LCP에 중요한 이미지라면 추가 (선택 사항)
                   />
                 ) : (
                   <User className="w-8 h-8 text-gray-400" />
