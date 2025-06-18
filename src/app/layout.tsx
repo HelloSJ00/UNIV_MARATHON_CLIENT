@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import QueryProvider from "@/components/providers/QueryProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +19,9 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={inter.className}>
-        <ProtectedRoute>{children}</ProtectedRoute>
+        <QueryProvider>
+          <ProtectedRoute>{children}</ProtectedRoute>
+        </QueryProvider>
       </body>
     </html>
   );

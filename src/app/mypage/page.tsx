@@ -1,56 +1,48 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  User,
-  Clock,
-  Trophy,
-  Shield,
-  ShieldCheck,
-  Plus,
-  Calendar,
-} from "lucide-react";
+import { User, Clock, Trophy, Shield, ShieldCheck, Plus } from "lucide-react";
 import Link from "next/link";
-import MypageHeader from "./components/MypageHeader";
+import CommonHeader from "./components/CommonHeader";
+import { useAuthStore } from "@/store/auth";
+import { useRouter } from "next/navigation";
 
 export default function MyPage() {
-  // Mock 사용자 데이터
-  const [user] = useState({
-    name: "김민수",
-    school: "성균관대학교",
-    department: "컴퓨터공학과",
-    studentId: "2020",
-    isVerified: false, // 대학교 인증 여부
-    profileImage: null,
-  });
+  const router = useRouter();
+  const { user, clearAuth } = useAuthStore();
 
-  // Mock 기록 데이터
-  const [records] = useState({
-    "10KM": { time: "45:23", date: "2024-03-15", rank: 15 },
-    HALF: { time: "1:35:42", date: "2024-02-20", rank: 8 },
-    FULL: null, // 기록 없음
-  });
+  const handleLogout = () => {
+    clearAuth();
+    router.push("/login");
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   const eventNames = {
-    "10KM": "10KM",
-    HALF: "하프마라톤",
-    FULL: "풀마라톤",
+    TEN_KM: "10KM",
+    HALF: "HALF",
+    FULL: "FULL",
   };
 
   return (
     <div className="min-h-screen bg-white text-black max-w-md mx-auto">
       {/* Header */}
-      <MypageHeader />
+      <CommonHeader text={"내 정보"} />
 
       <div className="p-4 space-y-6">
         {/* 프로필 섹션 */}
         <div className="bg-gray-50 rounded-3xl p-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-              {user.profileImage ? (
+              {user.profileImageUrl ? (
                 <img
-                  src={user.profileImage || "/placeholder.svg"}
+                  src={user.profileImageUrl}
                   alt="프로필"
                   className="w-full h-full object-cover"
                 />
@@ -60,17 +52,22 @@ export default function MyPage() {
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-bold">{user.name}</h2>
-              <p className="text-gray-600">{user.school}</p>
+              <p className="text-gray-600">{user.universityName}</p>
               <p className="text-sm text-gray-500">
-                {user.department} • {user.studentId}학번
+                {user.majorName} • {user.universityEmail}
               </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-gray-500">
+                  {user.gender === "MALE" ? "남성" : "여성"} · {user.age}세
+                </span>
+              </div>
             </div>
           </div>
 
           {/* 인증 상태 */}
           <div className="flex items-center justify-between p-3 bg-white rounded-2xl">
             <div className="flex items-center gap-3">
-              {user.isVerified ? (
+              {user.universityVerified ? (
                 <>
                   <ShieldCheck className="w-5 h-5 text-green-500" />
                   <span className="font-medium text-green-700">
@@ -86,7 +83,7 @@ export default function MyPage() {
                 </>
               )}
             </div>
-            {!user.isVerified && (
+            {!user.universityVerified && (
               <Link href="/mypage/emailVerification">
                 <Button
                   size="sm"
@@ -97,8 +94,16 @@ export default function MyPage() {
               </Link>
             )}
           </div>
+          {/* 내 정보 수정 버튼 */}
+          <Link href="/mypage/edit">
+            <Button
+              variant="outline"
+              className="w-full mt-3 h-12 border-gray-200 hover:bg-gray-50 rounded-2xl font-medium flex items-center justify-center gap-2"
+            >
+              <User className="w-4 h-4" />내 정보 수정
+            </Button>
+          </Link>
         </div>
-
         {/* 내 기록 섹션 */}
         <div className="bg-gray-50 rounded-3xl p-6">
           <div className="flex items-center gap-2 mb-6">
@@ -108,7 +113,10 @@ export default function MyPage() {
 
           <div className="space-y-4">
             {Object.entries(eventNames).map(([key, name]) => {
-              const record = records[key as keyof typeof records];
+              const record =
+                user.runningRecords?.[
+                  key as keyof typeof user.runningRecords
+                ] || null;
               return (
                 <div
                   key={key}
@@ -117,14 +125,15 @@ export default function MyPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                        <span className="font-bold text-sm">{key}</span>
+                        <span className="font-bold text-sm">
+                          {key === "TEN_KM" ? "10KM" : key}
+                        </span>
                       </div>
                       <div>
                         <h4 className="font-medium">{name}</h4>
                         {record ? (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-3 h-3" />
-                            <span>{record.date}</span>
+                          <div className="text-sm text-gray-600">
+                            {record.marathonName}
                           </div>
                         ) : (
                           <p className="text-sm text-gray-500">기록 없음</p>
@@ -133,15 +142,20 @@ export default function MyPage() {
                     </div>
                     <div className="text-right">
                       {record ? (
-                        <>
-                          <div className="flex items-center gap-1 font-mono font-bold">
-                            <Clock className="w-4 h-4 text-gray-400" />
-                            {record.time}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            #{record.rank}위
-                          </div>
-                        </>
+                        <div className="flex items-center gap-1 font-mono font-bold">
+                          <Clock className="w-4 h-4 text-gray-400" />
+                          {Math.floor(record.recordTimeInSeconds / 3600)
+                            .toString()
+                            .padStart(2, "0")}
+                          :
+                          {Math.floor((record.recordTimeInSeconds % 3600) / 60)
+                            .toString()
+                            .padStart(2, "0")}
+                          :
+                          {(record.recordTimeInSeconds % 60)
+                            .toString()
+                            .padStart(2, "0")}
+                        </div>
                       ) : (
                         <span className="text-gray-400">-</span>
                       )}
@@ -155,8 +169,8 @@ export default function MyPage() {
 
         {/* 기록 등록 버튼 */}
         <div className="pb-6">
-          {user.isVerified ? (
-            <Link href="/record/new">
+          {user.universityVerified ? (
+            <Link href="/mypage/myrecord">
               <Button className="w-full h-14 bg-black text-white hover:bg-gray-800 rounded-2xl text-lg font-medium flex items-center justify-center gap-2">
                 <Plus className="w-5 h-5" />내 기록 등록하기
               </Button>
@@ -174,6 +188,27 @@ export default function MyPage() {
               </p>
             </div>
           )}
+        </div>
+
+        {!user.universityVerified && (
+          <div className="mt-4">
+            <button
+              onClick={() => router.push("/mypage/verify")}
+              className="w-full py-4 bg-blue-600 text-white font-medium text-center rounded-2xl hover:bg-blue-700 transition-colors"
+            >
+              내 기록 등록하기
+            </button>
+          </div>
+        )}
+
+        {/* 로그아웃 버튼 */}
+        <div className="mt-4">
+          <button
+            onClick={handleLogout}
+            className="w-full py-4 text-red-600 font-medium text-center border border-red-600 rounded-2xl hover:bg-red-50 transition-colors"
+          >
+            로그아웃
+          </button>
         </div>
       </div>
     </div>

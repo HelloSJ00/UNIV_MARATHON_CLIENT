@@ -1,9 +1,45 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export interface RunningRecord {
+  id: number;
+  userId: number;
+  runningType: string;
+  marathonName: string;
+  recordTimeInSeconds: number;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RunningRecords {
+  TEN_KM: RunningRecord | null;
+  HALF: RunningRecord | null;
+  FULL: RunningRecord | null;
+}
+
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  age: number;
+  birthDate: string;
+  gender: "MALE" | "FEMALE";
+  majorName: string;
+  universityName: string;
+  universityEmail: string;
+  universityVerified: boolean;
+  profileImageUrl: string | null;
+  role: "ROLE_USER" | "ROLE_ADMIN";
+  createdAt: string;
+  runningRecords: RunningRecords;
+}
+
 interface AuthState {
   accessToken: string | null;
+  user: User | null;
   setAccessToken: (token: string | null) => void;
+  setUser: (user: User | null) => void;
   clearAuth: () => void;
 }
 
@@ -11,8 +47,10 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       accessToken: null,
+      user: null,
       setAccessToken: (token) => set({ accessToken: token }),
-      clearAuth: () => set({ accessToken: null }),
+      setUser: (user) => set({ user }),
+      clearAuth: () => set({ accessToken: null, user: null }),
     }),
     {
       name: "auth-storage",

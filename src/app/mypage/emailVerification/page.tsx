@@ -6,9 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Mail, Shield, CheckCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import EmailVerificationHeader from "./components/EmailVerificationHeader";
-
+import {
+  verifyEmail,
+  sendVerificationEmail,
+  verifyCode,
+} from "@/app/api/email";
+import { useAuthStore } from "@/store/auth";
 export default function EmailVerificationPage() {
   const router = useRouter();
+  const { user, setUser } = useAuthStore();
   const [step, setStep] = useState(1); // 1: 이메일 입력, 2: 인증코드 입력, 3: 완료
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
@@ -23,32 +29,46 @@ export default function EmailVerificationPage() {
 
     setIsCheckingEmail(true);
 
-    // 서버 요청 시뮬레이션
-    setTimeout(() => {
-      // Mock: 대학교 이메일 형식 확인 (실제로는 서버에서 검증)
-      const isValid =
-        email.includes("@skku.edu") ||
-        email.includes("@hanyang.ac.kr") ||
-        email.includes("@yonsei.ac.kr");
-      setIsEmailValid(isValid);
-      setIsCheckingEmail(false);
+    try {
+      const response = await verifyEmail(email);
+      console.log("이메일 인증 응답:", response);
 
-      if (!isValid) {
+      if (response.status === 200 && response.data === true) {
+        setIsEmailValid(true);
+        alert(response.message);
+      } else {
+        setIsEmailValid(false);
         alert("올바른 대학교 이메일이 아닙니다.");
       }
-    }, 1000);
+    } catch (error) {
+      console.error("이메일 인증 실패:", error);
+      setIsEmailValid(false);
+      alert("이메일 인증에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsCheckingEmail(false);
+    }
   };
 
   // 이메일 인증 발송
   const handleSendVerification = async () => {
     setIsSendingEmail(true);
 
-    // 서버 요청 시뮬레이션
-    setTimeout(() => {
+    try {
+      const response = await sendVerificationEmail(email);
+      console.log("이메일 인증 발송 응답:", response);
+
+      if (response.status === 200 && response.data === true) {
+        setStep(2);
+        alert(response.message);
+      } else {
+        alert("이메일 인증 발송에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("이메일 인증 발송 실패:", error);
+      alert("이메일 인증 발송에 실패했습니다. 다시 시도해주세요.");
+    } finally {
       setIsSendingEmail(false);
-      setStep(2);
-      alert("인증 이메일이 발송되었습니다!");
-    }, 1500);
+    }
   };
 
   // 인증코드 확인
@@ -57,11 +77,21 @@ export default function EmailVerificationPage() {
 
     setIsVerifying(true);
 
-    // 서버 요청 시뮬레이션
-    setTimeout(() => {
-      setIsVerifying(false);
-      if (verificationCode === "123456") {
-        // Mock 인증코드
+    try {
+      const response = await verifyCode(email, verificationCode);
+      console.log("인증코드 확인 응답:", response);
+
+      if (response.status === 200 && response.data === true) {
+        // Zustand store 업데이트
+        if (user) {
+          const updatedUser = {
+            ...user,
+            universityVerified: true,
+            universityEmail: email,
+          };
+          setUser(updatedUser);
+        }
+
         setStep(3);
         setTimeout(() => {
           router.push("/mypage");
@@ -69,7 +99,12 @@ export default function EmailVerificationPage() {
       } else {
         alert("인증코드가 올바르지 않습니다.");
       }
-    }, 1000);
+    } catch (error) {
+      console.error("인증코드 확인 실패:", error);
+      alert("인증코드 확인에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   return (
@@ -134,7 +169,7 @@ export default function EmailVerificationPage() {
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <Input
                       type="email"
-                      placeholder="example@skku.edu"
+                      placeholder="example@univ.kr"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10 h-12 rounded-2xl border-gray-200"

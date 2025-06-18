@@ -13,6 +13,7 @@ import { useAuthStore } from "@/store/auth";
 export default function LoginPage() {
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const setUser = useAuthStore((state) => state.setUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -23,8 +24,9 @@ export default function LoginPage() {
 
     try {
       const response = await login({ email, password });
-      const { accessToken } = response;
+      const { accessToken, user } = response;
       setAccessToken(accessToken);
+      setUser(user);
       router.replace("/home");
     } catch (error) {
       console.error("로그인 실패:", error);
