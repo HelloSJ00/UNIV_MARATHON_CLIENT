@@ -1,12 +1,49 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock } from "lucide-react";
 import LoginHeader from "./components/LoginHeader";
 import Link from "next/link";
+import { login } from "@/app/api/login";
+import { useAuthStore } from "@/store/auth";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await login({ email, password });
+      const token = response.accessToken;
+      setAccessToken(token);
+      // 토큰을 쿠키에 저장 (7일 유효)
+      Cookies.set(
+        "auth-storage",
+        JSON.stringify({ state: { accessToken: token } }),
+        {
+          expires: 7,
+          path: "/",
+        }
+      );
+      router.push("/home");
+    } catch (error) {
+      console.error("로그인 실패:", error);
+      // TODO: 에러 메시지 표시
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-black max-w-md mx-auto flex flex-col">
       <LoginHeader />
@@ -18,7 +55,7 @@ export default function LoginPage() {
         </div>
 
         {/* Login Form */}
-        <div className="space-y-4 mb-8">
+        <form onSubmit={handleLogin} className="space-y-4 mb-8">
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">이메일</label>
             <div className="relative">
@@ -27,6 +64,9 @@ export default function LoginPage() {
                 type="email"
                 placeholder="이메일을 입력하세요"
                 className="pl-10 h-12 rounded-2xl border-gray-200"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -41,15 +81,23 @@ export default function LoginPage() {
                 type="password"
                 placeholder="비밀번호를 입력하세요"
                 className="pl-10 h-12 rounded-2xl border-gray-200"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
           </div>
-        </div>
 
-        {/* Login Button */}
-        <Button className="w-full h-14 bg-black text-white hover:bg-gray-800 rounded-2xl text-lg font-medium mb-4">
-          로그인
-        </Button>
+          {/* Login Button */}
+          <Button
+            type="submit"
+            className="w-full h-14 bg-black text-white hover:bg-gray-800 rounded-2xl text-lg font-medium mb-4"
+            disabled={isLoading}
+          >
+            {isLoading ? "로그인 중..." : "로그인"}
+          </Button>
+        </form>
+
         {/* Divider */}
         <div className="relative mb-6">
           <div className="absolute inset-0 flex items-center">
@@ -59,6 +107,7 @@ export default function LoginPage() {
             <span className="px-4 bg-white text-gray-500">또는</span>
           </div>
         </div>
+
         {/* Kakao Login Button */}
         <Button
           className="w-full h-14 bg-[#FEE500] text-black hover:bg-[#FDD835] rounded-2xl text-lg font-medium mb-4 flex items-center justify-center gap-3"
@@ -72,6 +121,7 @@ export default function LoginPage() {
           </div>
           카카오로 로그인하기
         </Button>
+
         {/* Sign Up Link */}
         <div className="text-center">
           <p className="text-gray-600">

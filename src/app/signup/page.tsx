@@ -12,133 +12,168 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User, Lock, Calendar, Upload, GraduationCap } from "lucide-react";
+import {
+  Trophy,
+  ArrowLeft,
+  User,
+  Lock,
+  Calendar,
+  Upload,
+  GraduationCap,
+  Mail,
+  CheckCircle,
+  X,
+  Loader2,
+} from "lucide-react";
 import Link from "next/link";
 import SignupHeader from "./components/SignupHeader";
+import { useForm } from "react-hook-form";
+import { getAllUniversityName } from "@/app/api/getAllUniversityName";
+import { getMajorOfUniversity } from "@/app/api/getMajorOfUniversity";
+import { signup } from "@/app/api/signup";
+import { useRouter } from "next/navigation";
+
+interface SignupFormData {
+  email: string;
+  name: string;
+  password: string;
+  birthDate: string;
+  gender: "MALE" | "FEMALE";
+  studentId: string;
+  university: string;
+  major: string;
+  profileImage: string | null;
+}
 
 export default function SignupPage() {
-  const [selectedSchool, setSelectedSchool] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [departments, setDepartments] = useState<string[]>([]);
-  const [isLoadingDepartments, setIsLoadingDepartments] = useState(false);
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<SignupFormData>();
+  const [selectedUniversity, setSelectedUniversity] = useState("");
+  const [selectedMajor, setSelectedMajor] = useState("");
+  const [majors, setMajors] = useState<string[]>([]);
+  const [isLoadingMajors, setIsLoadingMajors] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [schoolSearchQuery, setSchoolSearchQuery] = useState("");
-  const [departmentSearchQuery, setDepartmentSearchQuery] = useState("");
+  const [universitySearchQuery, setUniversitySearchQuery] = useState("");
+  const [majorSearchQuery, setMajorSearchQuery] = useState("");
+  const [universities, setUniversities] = useState<string[]>([]);
+  const [isLoadingUniversities, setIsLoadingUniversities] = useState(true);
 
-  // Mock 학교 데이터
-  const schools = [
-    "성균관대학교",
-    "한양대학교",
-    "연세대학교",
-    "고려대학교",
-    "서울대학교",
-    "중앙대학교",
-    "경희대학교",
-    "이화여자대학교",
-  ];
+  // 이메일 중복체크 관련 상태
+  const [email, setEmail] = useState("");
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [emailCheckResult, setEmailCheckResult] = useState<
+    "none" | "available" | "taken"
+  >("none");
 
-  // Mock 학과 데이터 (학교별)
-  const mockDepartments: { [key: string]: string[] } = {
-    성균관대학교: [
-      "컴퓨터공학과",
-      "전자전기공학부",
-      "경영학과",
-      "경제학과",
-      "화학공학과",
-    ],
-    한양대학교: [
-      "컴퓨터소프트웨어학부",
-      "기계공학부",
-      "건축학부",
-      "경영학부",
-      "국어국문학과",
-    ],
-    연세대학교: [
-      "컴퓨터과학과",
-      "전기전자공학부",
-      "경영학과",
-      "심리학과",
-      "생명공학과",
-    ],
-    고려대학교: [
-      "컴퓨터학과",
-      "전기전자공학부",
-      "경영대학",
-      "법학과",
-      "의과대학",
-    ],
-    서울대학교: [
-      "컴퓨터공학부",
-      "전기정보공학부",
-      "경영학과",
-      "의과대학",
-      "공과대학",
-    ],
-    중앙대학교: [
-      "소프트웨어학부",
-      "전자전기공학부",
-      "경영경제대학",
-      "예술대학",
-      "사회과학대학",
-    ],
-    경희대학교: [
-      "컴퓨터공학과",
-      "전자공학과",
-      "경영학과",
-      "국제학부",
-      "의과대학",
-    ],
-    이화여자대학교: [
-      "컴퓨터공학과",
-      "전자전기공학과",
-      "경영학부",
-      "국제학부",
-      "의과대학",
-    ],
+  // 이메일 변경시 중복체크 결과 초기화
+  useEffect(() => {
+    setEmailCheckResult("none");
+  }, [email]);
+
+  // 이메일 중복체크
+  const handleEmailCheck = async () => {
+    if (!email) {
+      alert("이메일을 입력해주세요.");
+      return;
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("올바른 이메일 형식이 아닙니다.");
+      return;
+    }
+
+    setIsCheckingEmail(true);
+
+    // 서버 요청 시뮬레이션
+    setTimeout(() => {
+      const isDuplicate = existingEmails.includes(email);
+      setEmailCheckResult(isDuplicate ? "taken" : "available");
+      setIsCheckingEmail(false);
+    }, 1000);
   };
 
-  // 학교 선택시 학과 로드
+  // 대학교 목록 가져오기
   useEffect(() => {
-    if (selectedSchool) {
-      setIsLoadingDepartments(true);
-      setSelectedDepartment("");
-      setDepartmentSearchQuery(""); // 학과 검색어 초기화
+    const fetchUniversities = async () => {
+      try {
+        const response = await getAllUniversityName();
+        setUniversities(response.data);
+      } catch (error) {
+        console.error("대학교 목록 조회 실패:", error);
+      } finally {
+        setIsLoadingUniversities(false);
+      }
+    };
 
-      // 서버 요청 시뮬레이션 (실제로는 API 호출)
-      setTimeout(() => {
-        setDepartments(mockDepartments[selectedSchool] || []);
-        setIsLoadingDepartments(false);
-      }, 500);
+    fetchUniversities();
+  }, []);
+
+  // 대학교 선택시 학과 로드
+  useEffect(() => {
+    if (selectedUniversity) {
+      setIsLoadingMajors(true);
+      setSelectedMajor("");
+      setMajorSearchQuery("");
+      setValue("major", "");
+
+      const fetchMajors = async () => {
+        try {
+          const response = await getMajorOfUniversity(selectedUniversity);
+          console.log("학과 목록:", response.data);
+          setMajors(response.data);
+        } catch (error) {
+          console.error("학과 목록 조회 실패:", error);
+        } finally {
+          setIsLoadingMajors(false);
+        }
+      };
+
+      fetchMajors();
     } else {
-      setDepartments([]);
-      setSelectedDepartment("");
-      setDepartmentSearchQuery(""); // 학과 검색어 초기화
+      setMajors([]);
+      setSelectedMajor("");
+      setMajorSearchQuery("");
+      setValue("major", "");
     }
-  }, [selectedSchool]);
+  }, [selectedUniversity, setValue]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
+        const imageUrl = e.target?.result as string;
+        setProfileImage(imageUrl);
+        setValue("profileImage", imageUrl);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // 회원가입 로직 구현
-    console.log("회원가입 데이터 제출");
+  const onSubmit = async (data: SignupFormData) => {
+    try {
+      const response = await signup(data);
+      console.log("회원가입 성공:", response);
+      router.push("/login");
+    } catch (error) {
+      console.error("회원가입 실패:", error);
+      // TODO: 에러 처리 (예: 에러 메시지 표시)
+    }
   };
 
-  const filteredSchools = schools.filter((school) =>
-    school.toLowerCase().includes(schoolSearchQuery.toLowerCase())
+  const filteredUniversities = universities.filter((university) =>
+    university.toLowerCase().includes(universitySearchQuery.toLowerCase())
   );
 
-  const filteredDepartments = departments.filter((department) =>
-    department.toLowerCase().includes(departmentSearchQuery.toLowerCase())
+  const filteredMajors = majors.filter((major) =>
+    major.toLowerCase().includes(majorSearchQuery.toLowerCase())
   );
 
   return (
@@ -153,14 +188,14 @@ export default function SignupPage() {
           <p className="text-gray-600">마라톤 기록 관리를 시작해보세요</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* 프로필 이미지 */}
           <div className="flex flex-col items-center space-y-3">
             <div className="relative">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
                 {profileImage ? (
                   <img
-                    src={profileImage || "/placeholder.svg"}
+                    src={profileImage}
                     alt="프로필"
                     className="w-full h-full object-cover"
                   />
@@ -182,20 +217,52 @@ export default function SignupPage() {
           </div>
 
           {/* 기본 정보 */}
+          {/* 기본 정보 */}
           <div className="space-y-4">
+            {/* 이메일 (아이디) */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
-                아이디
+                이메일 (로그인 ID)
               </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="아이디를 입력하세요"
-                  className="pl-10 h-12 rounded-2xl border-gray-200"
-                  required
-                />
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    type="email"
+                    placeholder="이메일을 입력하세요"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 h-12 rounded-2xl border-gray-200"
+                    required
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleEmailCheck}
+                  disabled={!email || isCheckingEmail}
+                  className="h-12 px-4 bg-black text-white hover:bg-gray-800 rounded-2xl whitespace-nowrap"
+                >
+                  {isCheckingEmail ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "중복확인"
+                  )}
+                </Button>
               </div>
+
+              {/* 중복체크 결과 */}
+              {emailCheckResult === "available" && (
+                <div className="flex items-center gap-2 text-green-600 text-sm">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>사용 가능한 이메일입니다.</span>
+                </div>
+              )}
+              {emailCheckResult === "taken" && (
+                <div className="flex items-center gap-2 text-red-600 text-sm">
+                  <X className="w-4 h-4" />
+                  <span>이미 사용중인 이메일입니다.</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -205,22 +272,34 @@ export default function SignupPage() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
+                  {...register("password", {
+                    required: "비밀번호를 입력해주세요",
+                  })}
                   type="password"
                   placeholder="비밀번호를 입력하세요"
                   className="pl-10 h-12 rounded-2xl border-gray-200"
-                  required
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">이름</label>
               <Input
+                {...register("name", { required: "이름을 입력해주세요" })}
                 type="text"
                 placeholder="이름을 입력하세요"
                 className="h-12 rounded-2xl border-gray-200"
-                required
               />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -230,50 +309,80 @@ export default function SignupPage() {
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
+                  {...register("birthDate", {
+                    required: "생년월일을 입력해주세요",
+                    pattern: {
+                      value: /^\d{4}-\d{2}-\d{2}$/,
+                      message: "올바른 생년월일 형식이 아닙니다 (YYYY-MM-DD)",
+                    },
+                  })}
                   type="date"
+                  max={new Date().toISOString().split("T")[0]}
                   className="pl-10 h-12 rounded-2xl border-gray-200"
-                  required
                 />
+                {errors.birthDate && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.birthDate.message}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">성별</label>
-              <Select required>
+              <Select
+                onValueChange={(value) =>
+                  setValue("gender", value as "MALE" | "FEMALE")
+                }
+                required
+              >
                 <SelectTrigger className="h-12 rounded-2xl border-gray-200 w-full">
                   <SelectValue placeholder="성별을 선택하세요" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl">
-                  <SelectItem value="male" className="rounded-xl">
+                  <SelectItem value="MALE" className="rounded-xl">
                     남성
                   </SelectItem>
-                  <SelectItem value="female" className="rounded-xl">
+                  <SelectItem value="FEMALE" className="rounded-xl">
                     여성
                   </SelectItem>
                 </SelectContent>
               </Select>
+              {errors.gender && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.gender.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">학번</label>
-              <Select required>
+              <Select
+                onValueChange={(value) => setValue("studentId", value)}
+                required
+              >
                 <SelectTrigger className="h-12 rounded-2xl border-gray-200 w-full">
                   <SelectValue placeholder="입학년도를 선택하세요" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl">
-                  {Array.from({ length: 10 }, (_, i) => 2024 - i).map(
+                  {Array.from({ length: 20 }, (_, i) => 2025 - i).map(
                     (year) => (
                       <SelectItem
                         key={year}
                         value={year.toString()}
                         className="rounded-xl"
                       >
-                        {year}학번
+                        {year}
                       </SelectItem>
                     )
                   )}
                 </SelectContent>
               </Select>
+              {errors.studentId && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.studentId.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -285,92 +394,115 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">학교</label>
+              <label className="text-sm font-medium text-gray-700">
+                대학교
+              </label>
               <Select
-                value={selectedSchool}
-                onValueChange={setSelectedSchool}
+                value={selectedUniversity}
+                onValueChange={(value) => {
+                  setSelectedUniversity(value);
+                  setValue("university", value);
+                }}
                 required
+                disabled={isLoadingUniversities}
               >
                 <SelectTrigger className="h-12 rounded-2xl border-gray-200 bg-white w-full">
-                  <SelectValue placeholder="학교를 선택하세요" />
+                  <SelectValue
+                    placeholder={
+                      isLoadingUniversities
+                        ? "대학교 목록을 불러오는 중..."
+                        : "대학교를 선택하세요"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl">
                   <div className="p-2">
                     <Input
-                      placeholder="학교명 검색..."
-                      value={schoolSearchQuery}
-                      onChange={(e) => setSchoolSearchQuery(e.target.value)}
+                      placeholder="대학교명 검색..."
+                      value={universitySearchQuery}
+                      onChange={(e) => setUniversitySearchQuery(e.target.value)}
                       className="mb-2 rounded-xl border-gray-200"
                     />
                   </div>
-                  {filteredSchools.map((school) => (
+                  {filteredUniversities.map((university) => (
                     <SelectItem
-                      key={school}
-                      value={school}
+                      key={university}
+                      value={university}
                       className="rounded-xl"
                     >
-                      {school}
+                      {university}
                     </SelectItem>
                   ))}
-                  {filteredSchools.length === 0 && (
+                  {filteredUniversities.length === 0 && (
                     <div className="p-2 text-sm text-gray-500 text-center">
                       검색 결과가 없습니다
                     </div>
                   )}
                 </SelectContent>
               </Select>
+              {errors.university && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.university.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">학과</label>
               <Select
-                value={selectedDepartment}
-                onValueChange={setSelectedDepartment}
-                disabled={!selectedSchool || isLoadingDepartments}
+                value={selectedMajor}
+                onValueChange={(value) => {
+                  setSelectedMajor(value);
+                  setValue("major", value);
+                }}
+                disabled={!selectedUniversity || isLoadingMajors}
                 required
               >
                 <SelectTrigger className="h-12 rounded-2xl border-gray-200 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed w-full">
                   <SelectValue
                     placeholder={
-                      !selectedSchool
-                        ? "먼저 학교를 선택하세요"
-                        : isLoadingDepartments
+                      !selectedUniversity
+                        ? "먼저 대학교를 선택하세요"
+                        : isLoadingMajors
                         ? "학과 정보를 불러오는 중..."
                         : "학과를 선택하세요"
                     }
                   />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl">
-                  {!isLoadingDepartments && departments.length > 0 && (
+                  {!isLoadingMajors && majors.length > 0 && (
                     <div className="p-2">
                       <Input
                         placeholder="학과명 검색..."
-                        value={departmentSearchQuery}
-                        onChange={(e) =>
-                          setDepartmentSearchQuery(e.target.value)
-                        }
+                        value={majorSearchQuery}
+                        onChange={(e) => setMajorSearchQuery(e.target.value)}
                         className="mb-2 rounded-xl border-gray-200"
                       />
                     </div>
                   )}
-                  {filteredDepartments.map((department) => (
+                  {filteredMajors.map((major) => (
                     <SelectItem
-                      key={department}
-                      value={department}
+                      key={major}
+                      value={major}
                       className="rounded-xl"
                     >
-                      {department}
+                      {major}
                     </SelectItem>
                   ))}
-                  {!isLoadingDepartments &&
-                    filteredDepartments.length === 0 &&
-                    departments.length > 0 && (
+                  {!isLoadingMajors &&
+                    filteredMajors.length === 0 &&
+                    majors.length > 0 && (
                       <div className="p-2 text-sm text-gray-500 text-center">
                         검색 결과가 없습니다
                       </div>
                     )}
                 </SelectContent>
               </Select>
+              {errors.major && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.major.message}
+                </p>
+              )}
             </div>
           </div>
 
