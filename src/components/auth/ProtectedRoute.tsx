@@ -15,9 +15,9 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     // 보호된 라우트 목록
-    const protectedRoutes = ["/home", "/profile", "/marathon", "/mypage"];
+    const protectedRoutes = ["/admin", "/mypage"];
     // 인증이 필요없는 라우트 목록
-    const authRoutes = ["/login", "/signup"];
+    const authRoutes = ["/login", "/signup", "/home"];
 
     // 루트 경로에서 로그인 상태일 때 /home으로 리다이렉트
     if (pathname === "/" && accessToken) {
