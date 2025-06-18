@@ -9,7 +9,6 @@ import LoginHeader from "./components/LoginHeader";
 import Link from "next/link";
 import { login } from "@/app/api/login";
 import { useAuthStore } from "@/store/auth";
-import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,18 +23,9 @@ export default function LoginPage() {
 
     try {
       const response = await login({ email, password });
-      const token = response.accessToken;
-      setAccessToken(token);
-      // 토큰을 쿠키에 저장 (7일 유효)
-      Cookies.set(
-        "auth-storage",
-        JSON.stringify({ state: { accessToken: token } }),
-        {
-          expires: 7,
-          path: "/",
-        }
-      );
-      router.push("/home");
+      const { accessToken } = response;
+      setAccessToken(accessToken);
+      router.replace("/home");
     } catch (error) {
       console.error("로그인 실패:", error);
       // TODO: 에러 메시지 표시
