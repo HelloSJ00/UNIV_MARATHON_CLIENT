@@ -156,12 +156,7 @@ export async function getRunningRankings(
   });
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking?${params}`,
-    {
-      headers: {
-        Authorization: `Bearer ${useAuthStore.getState().accessToken}`,
-      },
-    }
+    `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking?${params}`
   );
 
   if (!response.ok) {
