@@ -101,7 +101,7 @@ export default function LoginPage() {
         </div>
 
         {/* Kakao Login Button */}
-        <Button
+        {/* <Button
           className="w-full h-14 bg-[#FEE500] text-black hover:bg-[#FDD835] rounded-2xl text-lg font-medium mb-4 flex items-center justify-center gap-3"
           onClick={() => {
             // 카카오 로그인 로직 구현
@@ -112,7 +112,7 @@ export default function LoginPage() {
             <span className="text-[#FEE500] font-bold text-sm">K</span>
           </div>
           카카오로 로그인하기
-        </Button>
+        </Button> */}
 
         {/* Sign Up Link */}
         <div className="text-center">

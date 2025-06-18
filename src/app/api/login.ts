@@ -1,14 +1,19 @@
 import axios from "axios";
 
 interface RunningRecord {
-  recordTimeInSeconds: number;
+  id: number;
+  userId: number;
+  runningType: string;
   marathonName: string;
-  runningType: "HALF" | "TEN_KM" | "FULL";
+  recordTimeInSeconds: number;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface RunningRecords {
-  HALF: RunningRecord | null;
   TEN_KM: RunningRecord | null;
+  HALF: RunningRecord | null;
   FULL: RunningRecord | null;
 }
 

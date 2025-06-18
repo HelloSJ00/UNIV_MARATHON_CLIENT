@@ -9,7 +9,7 @@ interface MajorResponse {
 export const getMajorOfUniversity = async (university: string) => {
   try {
     const response = await axios.get<MajorResponse>(
-      `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URLL}/auth/university/major?universityName=${university}`,
+      `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/auth/university/major?universityName=${university}`,
       {
         withCredentials: true,
       }

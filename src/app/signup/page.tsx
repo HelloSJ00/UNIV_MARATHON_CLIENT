@@ -13,8 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Trophy,
-  ArrowLeft,
   User,
   Lock,
   Calendar,
@@ -31,6 +29,7 @@ import { useForm } from "react-hook-form";
 import { getAllUniversityName } from "@/app/api/getAllUniversityName";
 import { getMajorOfUniversity } from "@/app/api/getMajorOfUniversity";
 import { signup } from "@/app/api/signup";
+import { checkEmailAvailable } from "@/app/api/checkEmail";
 import { useRouter } from "next/navigation";
 
 interface SignupFormData {
@@ -91,12 +90,16 @@ export default function SignupPage() {
 
     setIsCheckingEmail(true);
 
-    // 서버 요청 시뮬레이션
-    setTimeout(() => {
-      const isDuplicate = existingEmails.includes(email);
-      setEmailCheckResult(isDuplicate ? "taken" : "available");
+    try {
+      const isAvailable = await checkEmailAvailable(email);
+      setEmailCheckResult(isAvailable ? "available" : "taken");
+    } catch (error) {
+      console.error("이메일 중복확인 실패:", error);
+      alert("이메일 중복확인에 실패했습니다.");
+      setEmailCheckResult("none");
+    } finally {
       setIsCheckingEmail(false);
-    }, 1000);
+    }
   };
 
   // 대학교 목록 가져오기
@@ -158,6 +161,7 @@ export default function SignupPage() {
   };
 
   const onSubmit = async (data: SignupFormData) => {
+    console.log(data);
     try {
       const response = await signup(data);
       console.log("회원가입 성공:", response);
@@ -230,10 +234,16 @@ export default function SignupPage() {
                   <Input
                     type="email"
                     placeholder="이메일을 입력하세요"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-12 rounded-2xl border-gray-200"
                     required
+                    {...register("email", {
+                      required: "이메일을 입력해주세요",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "올바른 이메일 형식이 아닙니다",
+                      },
+                      onChange: (e) => setEmail(e.target.value),
+                    })}
                   />
                 </div>
                 <Button

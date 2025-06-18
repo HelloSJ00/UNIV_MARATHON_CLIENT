@@ -9,7 +9,7 @@ interface UniversitiesResponse {
 export const getAllUniversityName = async () => {
   try {
     const response = await axios.get<UniversitiesResponse>(
-      `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URLL}/auth/university/all`
+      `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/auth/university/all`
     );
     return response.data;
   } catch (error) {

@@ -58,7 +58,8 @@ export default function MyPage() {
               </p>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-sm text-gray-500">
-                  {user.gender === "MALE" ? "남성" : "여성"} · {user.age}세
+                  {user.gender === "MALE" ? "남성" : "여성"} ·{" "}
+                  {getAgeFromBirthDate(user.birthDate)}세
                 </span>
               </div>
             </div>
@@ -190,17 +191,6 @@ export default function MyPage() {
           )}
         </div>
 
-        {!user.universityVerified && (
-          <div className="mt-4">
-            <button
-              onClick={() => router.push("/mypage/verify")}
-              className="w-full py-4 bg-blue-600 text-white font-medium text-center rounded-2xl hover:bg-blue-700 transition-colors"
-            >
-              내 기록 등록하기
-            </button>
-          </div>
-        )}
-
         {/* 로그아웃 버튼 */}
         <div className="mt-4">
           <button
@@ -213,4 +203,15 @@ export default function MyPage() {
       </div>
     </div>
   );
+}
+
+export function getAgeFromBirthDate(birthDate: string): number {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
 }

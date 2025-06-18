@@ -25,7 +25,7 @@ interface SignupResponse {
 export const signup = async (data: SignupRequest) => {
   try {
     const response = await axios.post<SignupResponse>(
-      `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URLL}/auth/signup`,
+      `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/auth/signup`,
       data,
       {
         withCredentials: true,

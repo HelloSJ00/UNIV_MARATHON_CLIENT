@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Shield, CheckCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import EmailVerificationHeader from "./components/EmailVerificationHeader";
 import {
   verifyEmail,
   sendVerificationEmail,
   verifyCode,
 } from "@/app/api/email";
 import { useAuthStore } from "@/store/auth";
+import CommonHeader from "../components/CommonHeader";
 export default function EmailVerificationPage() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
@@ -110,7 +110,7 @@ export default function EmailVerificationPage() {
   return (
     <div className="min-h-screen bg-white text-black max-w-md mx-auto">
       {/* Header */}
-      <EmailVerificationHeader />
+      <CommonHeader text="학교 인증" />
 
       <div className="p-4">
         {/* Progress Indicator */}

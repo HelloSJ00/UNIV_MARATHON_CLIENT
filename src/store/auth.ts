@@ -19,20 +19,18 @@ export interface RunningRecords {
 }
 
 export interface User {
-  id: number;
   email: string;
   name: string;
-  age: number;
   birthDate: string;
   gender: "MALE" | "FEMALE";
-  majorName: string;
   universityName: string;
-  universityEmail: string;
-  universityVerified: boolean;
+  majorName: string;
   profileImageUrl: string | null;
   role: "ROLE_USER" | "ROLE_ADMIN";
   createdAt: string;
+  universityEmail: string;
   runningRecords: RunningRecords;
+  universityVerified: boolean;
 }
 
 interface AuthState {
