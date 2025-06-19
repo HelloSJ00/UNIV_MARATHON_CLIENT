@@ -27,6 +27,8 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { getAllUniversityName } from "@/app/api/getAllUniversityName";
 import { getMajorOfUniversity } from "@/app/api/getMajorOfUniversity";
+import { uploadToS3 } from "@/utils/s3";
+import { updateUser } from "@/app/api/user";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -54,6 +56,7 @@ export default function EditProfilePage() {
   const [isEditingSchool, setIsEditingSchool] = useState(false);
   const [universities, setUniversities] = useState<string[]>([]);
   const [isLoadingUniversities, setIsLoadingUniversities] = useState(true);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
 
   // 대학교 목록 가져오기
   useEffect(() => {
@@ -125,6 +128,7 @@ export default function EditProfilePage() {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setProfileImageFile(file); // 파일 상태 저장
       const reader = new FileReader();
       reader.onload = (e) => {
         const imageUrl = e.target?.result as string;
@@ -136,6 +140,7 @@ export default function EditProfilePage() {
 
   const handleRemoveImage = () => {
     setFormData((prev) => ({ ...prev, profileImageUrl: "" }));
+    setProfileImageFile(null);
   };
 
   const handleInputChange = (field: string, value: string | number) => {
@@ -174,30 +179,73 @@ export default function EditProfilePage() {
     setIsSaving(true);
 
     try {
-      // TODO: API 요청 구현
-      const updatedUser = {
-        email: user?.email || "",
+      let profileImageUrl = formData.profileImageUrl;
+
+      // 새 파일이 있으면 S3에 업로드
+      if (profileImageFile) {
+        const { url } = await uploadToS3(profileImageFile);
+        profileImageUrl = url;
+      }
+
+      // 서버에 유저 정보 업데이트 요청 전 콘솔 출력
+      console.log("폼 전송 데이터:", {
         name: formData.name,
         birthDate: formData.birthDate,
         gender: formData.gender,
         universityName: selectedSchool,
         majorName: selectedDepartment,
         universityEmail: formData.universityEmail,
-        profileImageUrl: formData.profileImageUrl,
-        role: user?.role || "ROLE_USER",
-        createdAt: user?.createdAt || new Date().toISOString(),
-        runningRecords: user?.runningRecords || {
-          HALF: null,
-          TEN_KM: null,
-          FULL: null,
-        },
-        universityVerified: formData.isChangeUniversity
-          ? false
-          : user?.universityVerified || false,
-      };
+        profileImageUrl,
+      });
+      const response = await updateUser({
+        name: formData.name,
+        birthDate: formData.birthDate,
+        gender: formData.gender,
+        universityName: selectedSchool,
+        majorName: selectedDepartment,
+        universityEmail: formData.universityEmail,
+        profileImageUrl,
+      });
+      // 서버 응답 콘솔 출력
+      console.log("서버 응답:", response);
 
-      // Zustand store 업데이트
-      setUser(updatedUser);
+      // 서버에서 받은 최신 유저 정보로 zustand 업데이트
+      setUser({
+        ...response.data,
+        role: response.data.role === "ROLE_ADMIN" ? "ROLE_ADMIN" : "ROLE_USER",
+        runningRecords: {
+          HALF: response.data.runningRecords.HALF
+            ? {
+                ...response.data.runningRecords.HALF,
+                id: 0,
+                userId: 0,
+                imageUrl: "",
+                createdAt: "",
+                updatedAt: "",
+              }
+            : null,
+          TEN_KM: response.data.runningRecords.TEN_KM
+            ? {
+                ...response.data.runningRecords.TEN_KM,
+                id: 0,
+                userId: 0,
+                imageUrl: "",
+                createdAt: "",
+                updatedAt: "",
+              }
+            : null,
+          FULL: response.data.runningRecords.FULL
+            ? {
+                ...response.data.runningRecords.FULL,
+                id: 0,
+                userId: 0,
+                imageUrl: "",
+                createdAt: "",
+                updatedAt: "",
+              }
+            : null,
+        },
+      });
 
       alert("내 정보가 성공적으로 수정되었습니다!");
       router.push("/mypage");
