@@ -198,7 +198,7 @@ export default function SignupPage() {
       <div className="p-4">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold mb-2">계정 만들기</h2>
-          <p className="text-gray-600">마라톤 기록 관리를 시작해보세요</p>
+          <p className="text-gray-600">전국 대학생 순위를 확인해 보세요</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

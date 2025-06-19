@@ -22,7 +22,7 @@ import {
   X,
   Calendar,
 } from "lucide-react";
-import CommonHeader from "../components/CommonHeader";
+import CommonHeader from "../../../components/common/CommonHeader";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { getAllUniversityName } from "@/app/api/getAllUniversityName";

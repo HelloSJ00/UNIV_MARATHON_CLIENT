@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { User, Clock, Trophy, Shield, ShieldCheck, Plus } from "lucide-react";
 import Link from "next/link";
-import CommonHeader from "./components/CommonHeader";
+import CommonHeader from "../../components/common/CommonHeader";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 import { getAgeFromBirthDate } from "@/utils/date";

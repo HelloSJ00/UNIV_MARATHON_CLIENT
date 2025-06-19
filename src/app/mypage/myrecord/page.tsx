@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Clock, Calendar, Eye } from "lucide-react";
 import Link from "next/link";
-import CommonHeader from "../components/CommonHeader";
+import CommonHeader from "../../../components/common/CommonHeader";
 import { useQuery } from "@tanstack/react-query";
 import { getRecords } from "@/app/api/records";
 

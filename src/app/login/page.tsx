@@ -45,7 +45,9 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col justify-center px-6">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold mb-2">환영합니다!</h2>
-          <p className="text-gray-600">마라톤 기록을 등록하고 관리해보세요</p>
+          <p className="text-gray-600">
+            마라톤 기록을 등록하고 순위를 확인 해보세요
+          </p>
         </div>
 
         {/* Login Form */}

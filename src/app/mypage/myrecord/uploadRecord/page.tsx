@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 // } from "@/components/ui/select";
 import { Upload, X, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
-import CommonHeader from "../../components/CommonHeader";
+import CommonHeader from "../../../../components/common/CommonHeader";
 import { submitRecord } from "@/app/api/records";
 import { uploadToS3 } from "@/utils/s3";
 

@@ -33,7 +33,7 @@ export default function HomePage() {
     "MALE" | "FEMALE" | "ALL"
   >("ALL");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isFilterExpanded, setIsFilterExpanded] = useState(true);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   const [isLoadingRankings, setIsLoadingRankings] = useState(false);
   const [rankingsData, setRankingsData] = useState<RunningRank[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -81,6 +81,7 @@ export default function HomePage() {
   const fetchRankings = async () => {
     setIsLoadingRankings(true);
     setHasSearched(true);
+    setIsFilterExpanded(false);
 
     try {
       console.log("랭킹 조회 파라미터:", {

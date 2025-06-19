@@ -11,7 +11,7 @@ import {
   verifyCode,
 } from "@/app/api/email";
 import { useAuthStore } from "@/store/auth";
-import CommonHeader from "../components/CommonHeader";
+import CommonHeader from "../../../components/common/CommonHeader";
 export default function EmailVerificationPage() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
