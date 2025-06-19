@@ -28,9 +28,10 @@ import SignupHeader from "./components/SignupHeader";
 import { useForm } from "react-hook-form";
 import { getAllUniversityName } from "@/app/api/getAllUniversityName";
 import { getMajorOfUniversity } from "@/app/api/getMajorOfUniversity";
-import { signup } from "@/app/api/signup";
 import { checkEmailAvailable } from "@/app/api/checkEmail";
-import { useRouter } from "next/navigation";
+
+import { signup } from "@/app/api/signup";
+import { uploadToS3 } from "@/utils/s3";
 
 interface SignupFormData {
   email: string;
@@ -41,11 +42,10 @@ interface SignupFormData {
   studentId: string;
   university: string;
   major: string;
-  profileImage: string | null;
+  profileImage: FileList;
 }
 
 export default function SignupPage() {
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -57,7 +57,8 @@ export default function SignupPage() {
   const [selectedMajor, setSelectedMajor] = useState("");
   const [majors, setMajors] = useState<string[]>([]);
   const [isLoadingMajors, setIsLoadingMajors] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [universitySearchQuery, setUniversitySearchQuery] = useState("");
   const [majorSearchQuery, setMajorSearchQuery] = useState("");
   const [universities, setUniversities] = useState<string[]>([]);
@@ -150,28 +151,33 @@ export default function SignupPage() {
     }
   }, [selectedUniversity, setValue]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  // 이미지 선택 시 미리보기
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageUrl = e.target?.result as string;
-        setProfileImage(imageUrl);
-        setValue("profileImage", imageUrl);
-      };
-      reader.readAsDataURL(file);
+      setSelectedFile(file);
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
-  const onSubmit = async (data: SignupFormData) => {
-    console.log(data);
+  const onSubmit = async (
+    data: SignupFormData & { passwordConfirm: string }
+  ) => {
     try {
-      const response = await signup(data);
-      console.log("회원가입 성공:", response);
-      router.push("/login");
+      let profileImage = null;
+      if (selectedFile) {
+        const { url } = await uploadToS3(selectedFile);
+        profileImage = url;
+      }
+      const signupData = {
+        ...data,
+        profileImage,
+      };
+      await signup(signupData);
+      alert("회원가입이 완료되었습니다!");
     } catch (error) {
-      console.error("회원가입 실패:", error);
-      // TODO: 에러 처리 (예: 에러 메시지 표시)
+      alert("회원가입 중 오류가 발생했습니다.");
+      console.error(error);
     }
   };
 
@@ -200,14 +206,13 @@ export default function SignupPage() {
           <div className="flex flex-col items-center space-y-3">
             <div className="relative">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-                {profileImage ? (
+                {previewImage ? (
                   <Image
-                    src={profileImage}
-                    alt="프로필"
-                    width={100} // 예시: 이미지의 예상 너비 (픽셀)
-                    height={100} // 예시: 이미지의 예상 높이 (픽셀)
-                    className="w-full h-full object-cover" // Tailwind CSS 클래스는 그대로 사용 가능
-                    // priority // LCP에 중요한 이미지라면 추가 (선택 사항)
+                    src={previewImage}
+                    alt="미리보기"
+                    width={100}
+                    height={100}
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <User className="w-8 h-8 text-gray-400" />
@@ -218,8 +223,8 @@ export default function SignupPage() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleImageUpload}
                   className="hidden"
+                  onChange={handleImageChange}
                 />
               </label>
             </div>

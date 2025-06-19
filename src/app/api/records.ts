@@ -77,8 +77,6 @@ export const getRecords = async (): Promise<RecordsResponse> => {
 export const getPresignedUrl = async (
   file: File
 ): Promise<PresignedUrlResponse> => {
-  const { accessToken } = useAuthStore.getState();
-
   console.log("getPresignedUrl - 요청 시작:", {
     fileName: file.name,
     fileType: file.type,
@@ -90,7 +88,6 @@ export const getPresignedUrl = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         fileName: file.name,

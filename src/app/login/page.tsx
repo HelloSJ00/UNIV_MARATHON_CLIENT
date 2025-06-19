@@ -21,16 +21,18 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       const response = await login({ email, password });
-      const { accessToken, user } = response;
-      setAccessToken(accessToken);
-      setUser(user);
-      router.replace("/home");
+      if (response.accessToken) {
+        setAccessToken(response.accessToken);
+        setUser(response.user);
+        router.push("/home");
+      } else {
+        alert("이메일 또는 비밀번호가 올바르지 않습니다.");
+      }
     } catch (error) {
+      alert("이메일 또는 비밀번호가 올바르지 않습니다.");
       console.error("로그인 실패:", error);
-      // TODO: 에러 메시지 표시
     } finally {
       setIsLoading(false);
     }
