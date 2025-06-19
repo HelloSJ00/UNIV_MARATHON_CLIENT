@@ -211,7 +211,7 @@ export default function EmailVerificationPage() {
                     이메일 발송 중...
                   </>
                 ) : (
-                  "이메일 인증"
+                  "인증 메일 발송"
                 )}
               </Button>
             </div>
