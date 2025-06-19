@@ -110,6 +110,7 @@ export default function HomePage() {
   // 필터 초기화
   const handleResetFilter = () => {
     setSelectedSchool("");
+    setSearchQuery(""); // 검색어도 초기화
     setSelectedEvent("HALF");
     setSelectedGender("ALL");
     setIsIntegratedRanking(false);
@@ -122,6 +123,7 @@ export default function HomePage() {
     setIsIntegratedRanking(checked);
     if (checked) {
       setSelectedSchool(""); // 통합 랭킹 선택시 학교 선택 초기화
+      setSearchQuery(""); // 검색어도 초기화
     }
   };
 
