@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@/lib/axios";
 
 interface SignupRequest {
   email: string;

@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/store/auth";
+import axios from "@/lib/axios";
 
 interface Record {
   runningType: "HALF" | "TEN_KM" | "FULL";
@@ -17,11 +18,6 @@ interface RecordsResponse {
 
 interface SubmitRecordRequest {
   s3ImageUrl: string;
-}
-
-interface PresignedUrlRequest {
-  fileName: string;
-  fileType: string;
 }
 
 interface PresignedUrlResponse {
@@ -56,8 +52,7 @@ export interface RunningRankResponse {
 
 export const getRecords = async (): Promise<RecordsResponse> => {
   const { accessToken } = useAuthStore.getState();
-
-  const response = await fetch(
+  const response = await axios.get(
     `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/user/verifications`,
     {
       headers: {
@@ -65,12 +60,7 @@ export const getRecords = async (): Promise<RecordsResponse> => {
       },
     }
   );
-
-  if (!response.ok) {
-    throw new Error("기록 조회에 실패했습니다.");
-  }
-
-  return response.json();
+  return response.data;
 };
 
 // PresignedUrl 서버로 부터 받아오기
@@ -81,65 +71,40 @@ export const getPresignedUrl = async (
     fileName: file.name,
     fileType: file.type,
   });
-
-  const response = await fetch(
+  const response = await axios.post(
     `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/user/upload-url`,
     {
-      method: "POST",
+      fileName: file.name,
+      fileType: file.type,
+    },
+    {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        fileName: file.name,
-        fileType: file.type,
-      } as PresignedUrlRequest),
     }
   );
-
-  if (!response.ok) {
-    console.error("getPresignedUrl - 서버 응답 실패:", {
-      status: response.status,
-      statusText: response.statusText,
-    });
-    throw new Error("Presigned URL을 받아오는데 실패했습니다.");
-  }
-
-  const data = await response.json();
-  console.log("getPresignedUrl - 응답 성공:", data);
-  return data;
+  console.log("getPresignedUrl - 응답 성공:", response.data);
+  return response.data;
 };
 
 // 기록증 업로드 uri 서버로 전송
 export const submitRecord = async (data: SubmitRecordRequest) => {
   const { accessToken } = useAuthStore.getState();
-
   console.log("submitRecord - 요청 시작:", data);
-
-  const response = await fetch(
+  const response = await axios.post(
     `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/recordVerification`,
     {
-      method: "POST",
+      s3ImageUrl: data.s3ImageUrl,
+    },
+    {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({
-        s3ImageUrl: data.s3ImageUrl,
-      }),
     }
   );
-
-  if (!response.ok) {
-    console.error("submitRecord - 서버 응답 실패:", {
-      status: response.status,
-      statusText: response.statusText,
-    });
-    throw new Error("기록 제출에 실패했습니다.");
-  }
-
-  const responseData = await response.json();
-  console.log("submitRecord - 응답 성공:", responseData);
-  return responseData;
+  console.log("submitRecord - 응답 성공:", response.data);
+  return response.data;
 };
 
 export async function getRunningRankings(
@@ -152,15 +117,9 @@ export async function getRunningRankings(
     ...(universityName && { universityName }),
     ...(gender && { gender }),
   });
-
-  const response = await fetch(
+  const response = await axios.get(
     `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking?${params}`
   );
-
-  if (!response.ok) {
-    throw new Error("랭킹 조회에 실패했습니다.");
-  }
-  const data = await response.json();
-  console.log(data); // ✅ 출력
-  return data; // ✅ 반환
+  console.log(response.data); // ✅ 출력
+  return response.data; // ✅ 반환
 }

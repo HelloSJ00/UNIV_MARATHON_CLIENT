@@ -41,6 +41,7 @@ export default function HomePage() {
   const [universities, setUniversities] = useState<string[]>([]);
   const [isLoadingUniversities, setIsLoadingUniversities] = useState(true);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const user = useAuthStore((state) => state.user);
 
   // 대학교 목록 가져오기
   useEffect(() => {
@@ -197,7 +198,7 @@ export default function HomePage() {
                     setSelectedSchool(school);
                     setSearchQuery(school);
                   }}
-                  disabled={isIntegratedRanking || !accessToken}
+                  disabled={isIntegratedRanking || !accessToken || !user}
                 >
                   <SelectTrigger
                     className={`w-full h-12 rounded-2xl border-gray-200 bg-white ${
@@ -208,7 +209,7 @@ export default function HomePage() {
                   >
                     <SelectValue
                       placeholder={
-                        !accessToken
+                        !accessToken || !user
                           ? "로그인 시 학교별 랭킹 확인 가능"
                           : isIntegratedRanking
                           ? "통합 랭킹에서는 학교 선택 불필요"
@@ -267,7 +268,7 @@ export default function HomePage() {
                     통합 랭킹으로 보기
                   </label>
                   <p className="text-xs text-blue-600 mt-1">
-                    {!accessToken
+                    {!accessToken || !user
                       ? "로그인하지 않은 사용자는 통합 랭킹만 확인할 수 있습니다"
                       : "전국 모든 대학생 중에서의 순위를 확인합니다"}
                   </p>

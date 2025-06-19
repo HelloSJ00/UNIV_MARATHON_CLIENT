@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@/lib/axios";
 import { useAuthStore } from "@/store/auth";
 
 // 401 인터셉터 추가 (클라이언트 환경에서만)
@@ -76,3 +76,5 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
     throw error;
   }
 };
+
+export default axios;

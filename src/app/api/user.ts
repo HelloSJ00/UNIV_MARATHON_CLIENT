@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/store/auth";
+import axios from "@/lib/axios";
 
 export interface UpdateUserRequest {
   name: string;
@@ -44,19 +45,15 @@ export const updateUser = async (
   data: UpdateUserRequest
 ): Promise<UpdateUserResponse> => {
   const { accessToken } = useAuthStore.getState();
-  const response = await fetch(
+  const response = await axios.put(
     `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/user/update-user-info`,
+    data,
     {
-      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(data),
     }
   );
-  if (!response.ok) {
-    throw new Error("유저 정보 업데이트에 실패했습니다.");
-  }
-  return response.json();
+  return response.data;
 };
