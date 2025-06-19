@@ -5,7 +5,6 @@ export const uploadToS3 = async (file: File) => {
     console.log("1. 파일 정보:", {
       name: file.name,
       type: file.type,
-      size: file.size,
     });
 
     // 1. 서버에서 presigned URL 받아오기

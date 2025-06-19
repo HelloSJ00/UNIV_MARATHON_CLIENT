@@ -26,6 +26,7 @@ interface PresignedUrlRequest {
 
 interface PresignedUrlResponse {
   presignedUrl: string;
+  fileUrl: string;
 }
 
 export interface RunningRankUser {

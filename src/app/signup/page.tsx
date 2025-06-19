@@ -51,7 +51,8 @@ export default function SignupPage() {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<SignupFormData>();
+    watch,
+  } = useForm<SignupFormData & { passwordConfirm: string }>();
   const [selectedUniversity, setSelectedUniversity] = useState("");
   const [selectedMajor, setSelectedMajor] = useState("");
   const [majors, setMajors] = useState<string[]>([]);
@@ -68,6 +69,8 @@ export default function SignupPage() {
   const [emailCheckResult, setEmailCheckResult] = useState<
     "none" | "available" | "taken"
   >("none");
+
+  const password = watch("password");
 
   // 이메일 변경시 중복체크 결과 초기화
   useEffect(() => {
@@ -224,7 +227,6 @@ export default function SignupPage() {
           </div>
 
           {/* 기본 정보 */}
-          {/* 기본 정보 */}
           <div className="space-y-4">
             {/* 이메일 (아이디) */}
             <div className="space-y-2">
@@ -301,6 +303,28 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                비밀번호 확인
+              </label>
+              <Input
+                type="password"
+                placeholder="비밀번호를 다시 입력하세요"
+                {...register("passwordConfirm", {
+                  required: "비밀번호 확인을 입력하세요.",
+                  validate: (value) =>
+                    value === password || "비밀번호가 일치하지 않습니다.",
+                })}
+                className="h-12 rounded-2xl border-gray-200"
+                required
+              />
+              {errors.passwordConfirm && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.passwordConfirm.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">이름</label>
               <Input
                 {...register("name", { required: "이름을 입력해주세요" })}
@@ -320,7 +344,7 @@ export default function SignupPage() {
                 생년월일
               </label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 w-full" />
                 <Input
                   {...register("birthDate", {
                     required: "생년월일을 입력해주세요",
