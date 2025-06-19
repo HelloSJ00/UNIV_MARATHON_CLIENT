@@ -149,6 +149,7 @@ export default function EditProfilePage() {
 
   const handleSchoolChange = (school: string) => {
     setSelectedSchool(school);
+    setSchoolSearchQuery(school);
     setFormData((prev) => ({
       ...prev,
       universityName: school,

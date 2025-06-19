@@ -191,7 +191,10 @@ export default function HomePage() {
                 </label>
                 <Select
                   value={selectedSchool}
-                  onValueChange={setSelectedSchool}
+                  onValueChange={(school) => {
+                    setSelectedSchool(school);
+                    setSearchQuery(school);
+                  }}
                   disabled={isIntegratedRanking || !accessToken}
                 >
                   <SelectTrigger
