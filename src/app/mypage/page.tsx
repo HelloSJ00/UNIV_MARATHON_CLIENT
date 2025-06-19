@@ -109,6 +109,17 @@ export default function MyPage() {
               <User className="w-4 h-4" />내 정보 수정
             </Button>
           </Link>
+          {user.role === "ROLE_ADMIN" && (
+            <Link href="/admin">
+              <Button
+                variant="destructive"
+                className="w-full mt-3 h-12 rounded-2xl font-medium flex items-center justify-center gap-2"
+              >
+                <Trophy className="w-4 h-4" />
+                관리자 페이지
+              </Button>
+            </Link>
+          )}
         </div>
         {/* 내 기록 섹션 */}
         <div className="bg-gray-50 rounded-3xl p-6">
