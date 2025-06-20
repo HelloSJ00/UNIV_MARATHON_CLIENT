@@ -28,6 +28,7 @@ export interface UpdateUserResponse {
     gender: "MALE" | "FEMALE";
     universityName: string;
     majorName: string;
+    studentNumber: string | null;
     profileImageUrl: string | null;
     role: string;
     createdAt: string;
