@@ -25,6 +25,7 @@ export interface User {
   gender: "MALE" | "FEMALE";
   universityName: string;
   majorName: string;
+  studentNumber: string | null;
   profileImageUrl: string | null;
   role: "ROLE_USER" | "ROLE_ADMIN";
   createdAt: string;

@@ -31,6 +31,7 @@ export interface RunningRankUser {
   email: string;
   gender: "MALE" | "FEMALE";
   universityName: string;
+  majorName: string;
   studentNumber: string | null;
   profileImageUrl: string | null;
 }
