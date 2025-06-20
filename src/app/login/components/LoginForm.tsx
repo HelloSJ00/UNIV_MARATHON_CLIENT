@@ -12,6 +12,9 @@ interface LoginFormProps {
   isLoading: boolean;
   onLogin: (e: React.FormEvent) => void;
 }
+// const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
+// const KAKAO_REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
+// const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
 
 export default function LoginForm({
   email,
@@ -68,6 +71,18 @@ export default function LoginForm({
           <span className="px-4 bg-white text-gray-500">또는</span>
         </div>
       </div>
+      {/* Kakao Login Button */}
+      {/* <Button
+        className="w-full h-14 bg-[#FEE500] text-black hover:bg-[#FDD835] rounded-2xl text-lg font-medium mb-4 flex items-center justify-center gap-3"
+        onClick={() => {
+          window.location.href = kakaoAuthUrl;
+        }}
+      >
+        <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+          <span className="text-[#FEE500] font-bold text-sm">K</span>
+        </div>
+        카카오로 로그인하기
+      </Button> */}
       {/* Sign Up Link */}
       <div className="text-center">
         <p className="text-gray-600">
