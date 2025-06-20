@@ -19,6 +19,7 @@ interface Runner {
   rank: number;
   recordTimeInSeconds?: number;
   time?: string;
+  marathonName?: string;
 }
 
 interface RankingCardProps {
@@ -49,45 +50,47 @@ export default function RankingCard({
     >
       {/* 메인 카드 내용 */}
       <div className="p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div
-              className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm flex-shrink-0 ${
-                isIntegratedRanking ? "bg-blue-500" : "bg-black"
-              }`}
-            >
-              {runner.rank}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span
-                  className="font-semibold text-gray-900 truncate max-w-[120px]"
-                  title={runner.user?.name || runner.name}
-                >
-                  {runner.user?.name || runner.name}
-                </span>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
-                    runner.user?.gender === "MALE" || runner.gender === "male"
-                      ? "bg-blue-100 text-blue-700 border border-blue-200"
-                      : "bg-pink-100 text-pink-700 border border-pink-200"
-                  }`}
-                >
-                  {runner.user?.gender === "MALE" || runner.gender === "male"
-                    ? "남"
-                    : "여"}
-                </span>
-              </div>
-              <div
-                className="text-sm text-gray-600 font-medium truncate"
-                title={runner.user?.universityName || runner.school}
+        {/* 상단: 순위 + 이름/성별 + 학교 */}
+        <div className="flex items-start gap-3 mb-3">
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 ${
+              isIntegratedRanking ? "bg-blue-500" : "bg-black"
+            }`}
+          >
+            {runner.rank}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span
+                className="font-semibold text-gray-900 text-base"
+                title={runner.user?.name || runner.name}
               >
-                {runner.user?.universityName || runner.school}
-              </div>
+                {runner.user?.name || runner.name}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
+                  runner.user?.gender === "MALE" || runner.gender === "male"
+                    ? "bg-blue-100 text-blue-700 border border-blue-200"
+                    : "bg-pink-100 text-pink-700 border border-pink-200"
+                }`}
+              >
+                {runner.user?.gender === "MALE" || runner.gender === "male"
+                  ? "남"
+                  : "여"}
+              </span>
+            </div>
+            <div
+              className="text-sm text-gray-600 font-medium truncate"
+              title={runner.user?.universityName || runner.school}
+            >
+              {runner.user?.universityName || runner.school}
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+        {/* 하단: 기록 정보 */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 text-lg font-mono font-bold text-gray-900">
               <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <span className="whitespace-nowrap">
@@ -98,7 +101,7 @@ export default function RankingCard({
             </div>
             {runner.recordTimeInSeconds && runner.type && (
               <div
-                className="text-xs text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded-full whitespace-nowrap max-w-[100px] truncate"
+                className="text-xs text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded-full whitespace-nowrap"
                 title={`페이스: ${formatPace(
                   runner.recordTimeInSeconds,
                   runner.type
@@ -108,6 +111,14 @@ export default function RankingCard({
               </div>
             )}
           </div>
+          {runner.marathonName && (
+            <div
+              className="text-xs text-gray-500 truncate"
+              title={runner.marathonName}
+            >
+              🏃‍♂️ {runner.marathonName}
+            </div>
+          )}
         </div>
       </div>
 
@@ -120,9 +131,10 @@ export default function RankingCard({
                 <Image
                   src={runner.user.profileImageUrl || "/placeholder.svg"}
                   alt="프로필"
+                  className="object-cover w-full h-full"
                   width={64}
                   height={64}
-                  className="object-cover w-full h-full"
+                  priority
                 />
               ) : (
                 <User className="w-8 h-8 text-gray-400" />
