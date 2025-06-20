@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  verifyEmail,
-  sendVerificationEmail,
-  verifyCode,
-} from "@/app/api/email";
+import { verifyEmail } from "./api/verifyEmail";
+import { sendVerificationEmail } from "./api/sendVerificationEmail";
+import { verifyCode } from "./api/verifyCode";
 import { useAuthStore } from "@/store/auth";
 import EmailVerificationHeader from "./components/EmailVerificationHeader";
 import EmailVerificationProgress from "./components/EmailVerificationProgress";

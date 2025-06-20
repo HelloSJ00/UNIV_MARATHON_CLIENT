@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import axios from "@/lib/axios";
 import { useAuthStore } from "@/store/auth";
-import { AdminConfirm, AdminReject } from "@/app/api/adminRecords";
+import { AdminConfirm } from "./api/adminConfirm";
+import { AdminReject } from "./api/adminReject";
 import AdminHeader from "./components/AdminHeader";
 import AdminStats from "./components/AdminStats";
 import AdminRecordList from "./components/AdminRecordList";

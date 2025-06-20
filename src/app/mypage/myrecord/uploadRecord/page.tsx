@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import CommonHeader from "../../../../components/common/CommonHeader";
-import { submitRecord } from "@/app/api/records";
+import { submitRecord } from "../api/submitRecord";
 import { uploadToS3 } from "@/utils/s3";
 import RecordImageUploader from "./components/RecordImageUploader";
 import SubmitRecordButton from "./components/SubmitRecordButton";

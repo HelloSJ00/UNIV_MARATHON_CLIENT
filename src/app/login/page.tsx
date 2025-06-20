@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import CommonHeader from "@/components/common/CommonHeader";
-import { login } from "@/app/api/login";
+import { login } from "./api/login";
 import { useAuthStore } from "@/store/auth";
 import LoginForm from "./components/LoginForm";
 

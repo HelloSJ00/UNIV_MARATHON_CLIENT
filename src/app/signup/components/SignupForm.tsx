@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { getAllUniversityName } from "@/app/api/getAllUniversityName";
-import { getMajorOfUniversity } from "@/app/api/getMajorOfUniversity";
-import { checkEmailAvailable } from "@/app/api/checkEmail";
-import { signup } from "@/app/api/signup";
+import { getAllUniversityName } from "@/app/api/common/getAllUniversityName";
+import { getMajorOfUniversity } from "@/app/api/common/getMajorOfUniversity";
+import { checkEmailAvailable } from "@/app/api/common/checkEmail";
+import { signup } from "../api/reqSignup";
 import { uploadToS3 } from "@/utils/s3";
 import { useRouter } from "next/navigation";
 import Link from "next/link";

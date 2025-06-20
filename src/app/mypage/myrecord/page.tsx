@@ -3,7 +3,7 @@
 import { useState } from "react";
 import CommonHeader from "../../../components/common/CommonHeader";
 import { useQuery } from "@tanstack/react-query";
-import { getRecords } from "@/app/api/records";
+import { getRecords } from "./api/getRecords";
 import MyRecordList from "./components/MyRecordList";
 import UploadRecordButton from "./components/UploadRecordButton";
 import MyRecordGuide from "./components/MyRecordGuide";
