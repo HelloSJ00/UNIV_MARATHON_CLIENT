@@ -1,4 +1,4 @@
-import { getPresignedUrl } from "@/app/api/records";
+import { getPresignedUrl } from "@/app/mypage/myrecord/api/getPresignedUrl";
 
 export const uploadToS3 = async (file: File) => {
   try {
