@@ -29,9 +29,9 @@ import { useForm } from "react-hook-form";
 import { getAllUniversityName } from "@/app/api/getAllUniversityName";
 import { getMajorOfUniversity } from "@/app/api/getMajorOfUniversity";
 import { checkEmailAvailable } from "@/app/api/checkEmail";
-
 import { signup } from "@/app/api/signup";
 import { uploadToS3 } from "@/utils/s3";
+import { useRouter } from "next/navigation";
 
 interface SignupFormData {
   email: string;
@@ -72,6 +72,7 @@ export default function SignupPage() {
   >("none");
 
   const password = watch("password");
+  const router = useRouter();
 
   // 이메일 변경시 중복체크 결과 초기화
   useEffect(() => {
@@ -173,8 +174,10 @@ export default function SignupPage() {
         ...data,
         profileImage,
       };
+      console.log("[회원가입 폼 전송]", signupData);
       await signup(signupData);
       alert("회원가입이 완료되었습니다!");
+      router.push("/login");
     } catch (error) {
       alert("회원가입 중 오류가 발생했습니다.");
       console.error(error);
@@ -413,6 +416,9 @@ export default function SignupPage() {
                         key={year}
                         value={year.toString()}
                         className="rounded-xl"
+                        {...register("studentId", {
+                          required: "학번을 선택하세요",
+                        })}
                       >
                         {year}
                       </SelectItem>
