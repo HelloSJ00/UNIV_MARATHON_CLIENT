@@ -50,7 +50,7 @@ const BasicInfoFields = ({
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">생년월일</label>
         <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 w-full" />
+          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 text-gray-400 w-full" />
           <Input
             {...register("birthDate", {
               required: "생년월일을 입력해주세요",
