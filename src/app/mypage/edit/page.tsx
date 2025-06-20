@@ -1,27 +1,6 @@
 "use client";
 
-import type React from "react";
-import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  User,
-  Upload,
-  GraduationCap,
-  Mail,
-  Save,
-  Loader2,
-  X,
-  Calendar,
-} from "lucide-react";
 import CommonHeader from "../../../components/common/CommonHeader";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
@@ -29,6 +8,10 @@ import { getAllUniversityName } from "@/app/api/getAllUniversityName";
 import { getMajorOfUniversity } from "@/app/api/getMajorOfUniversity";
 import { uploadToS3 } from "@/utils/s3";
 import { updateUser } from "@/app/api/user";
+import ProfileImageUploader from "./components/ProfileImageUploader";
+import BasicInfoFields from "./components/BasicInfoFields";
+import SchoolInfoFields from "./components/SchoolInfoFields";
+import SaveButton from "./components/SaveButton";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -258,13 +241,6 @@ export default function EditProfilePage() {
     }
   };
 
-  const filteredSchools = universities.filter((school) =>
-    school.toLowerCase().includes(schoolSearchQuery.toLowerCase())
-  );
-  const filteredDepartments = departments.filter((department) =>
-    department.toLowerCase().includes(departmentSearchQuery.toLowerCase())
-  );
-
   return (
     <div className="min-h-screen bg-white text-black max-w-md mx-auto">
       {/* Header */}
@@ -282,353 +258,36 @@ export default function EditProfilePage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* 프로필 이미지 */}
-            <div className="flex flex-col items-center space-y-3">
-              <div className="relative">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-                  {formData.profileImageUrl ? (
-                    <Image
-                      src={formData.profileImageUrl}
-                      alt="프로필"
-                      width={100} // 예시: 이미지의 예상 너비 (픽셀)
-                      height={100} // 예시: 이미지의 예상 높이 (픽셀)
-                      className="w-full h-full object-cover" // Tailwind CSS 클래스는 그대로 사용 가능
-                      // priority // LCP에 중요한 이미지라면 추가 (선택 사항)
-                    />
-                  ) : (
-                    <User className="w-8 h-8 text-gray-400" />
-                  )}
-                </div>
-                <label className="absolute bottom-0 right-0 w-8 h-8 bg-black rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors">
-                  <Upload className="w-4 h-4 text-white" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </label>
-                {formData.profileImageUrl && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-              <p className="text-sm text-gray-600">프로필 사진 변경</p>
-            </div>
-
-            {/* 기본 정보 */}
-            <div className="space-y-4">
-              {/* 이메일 (수정 불가) */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  이메일 (변경 불가)
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    type="email"
-                    value={user?.email ?? ""}
-                    disabled
-                    className="pl-10 h-12 rounded-2xl border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-                <p className="text-xs text-gray-500">
-                  이메일은 로그인 ID로 사용되어 변경할 수 없습니다
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  이름
-                </label>
-                <Input
-                  type="text"
-                  placeholder="이름을 입력하세요"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  className="h-12 rounded-2xl border-gray-200"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  생년월일
-                </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={(e) =>
-                      handleInputChange("birthDate", e.target.value)
-                    }
-                    className="pl-10 h-12 rounded-2xl border-gray-200"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  성별
-                </label>
-                <Select
-                  value={formData.gender}
-                  onValueChange={(value) =>
-                    handleInputChange("gender", value as "MALE" | "FEMALE")
-                  }
-                  required
-                >
-                  <SelectTrigger className="h-12 rounded-2xl border-gray-200 w-full">
-                    <SelectValue placeholder="성별을 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl">
-                    <SelectItem value="MALE" className="rounded-xl">
-                      남성
-                    </SelectItem>
-                    <SelectItem value="FEMALE" className="rounded-xl">
-                      여성
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  학교 이메일
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    type="email"
-                    placeholder="학교 이메일을 입력하세요"
-                    value={formData.universityEmail}
-                    onChange={(e) =>
-                      handleInputChange("universityEmail", e.target.value)
-                    }
-                    className="pl-10 h-12 rounded-2xl border-gray-200"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 학교 정보 */}
-            <div className="bg-gray-50 rounded-3xl p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-lg font-medium">
-                  <GraduationCap className="w-5 h-5" />
-                  학교 정보
-                </div>
-                {!isEditingSchool ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditingSchool(true)}
-                    className="text-sm"
-                  >
-                    수정하기
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setIsEditingSchool(false);
-                      setSelectedSchool(user?.universityName || "");
-                      setSelectedDepartment(user?.majorName || "");
-                    }}
-                    className="text-sm"
-                  >
-                    취소
-                  </Button>
-                )}
-              </div>
-
-              {!isEditingSchool ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-700">
-                      학교:
-                    </span>
-                    <span className="text-sm text-gray-600">
-                      {user?.universityName}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-700">
-                      학과:
-                    </span>
-                    <span className="text-sm text-gray-600">
-                      {user?.majorName}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">
-                      학교
-                    </label>
-                    <Select
-                      value={selectedSchool}
-                      onValueChange={handleSchoolChange}
-                      required
-                    >
-                      <SelectTrigger className="h-12 rounded-2xl border-gray-200 bg-white w-full">
-                        <SelectValue placeholder="학교를 선택하세요">
-                          {selectedSchool}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl">
-                        <div className="p-2">
-                          <Input
-                            placeholder="학교명 검색..."
-                            value={schoolSearchQuery}
-                            onChange={(e) =>
-                              setSchoolSearchQuery(e.target.value)
-                            }
-                            className="mb-2 rounded-xl border-gray-200"
-                          />
-                        </div>
-                        {isLoadingUniversities ? (
-                          <div className="p-2 text-sm text-gray-500 text-center">
-                            학교 목록을 불러오는 중...
-                          </div>
-                        ) : (
-                          <>
-                            {filteredSchools.map((school) => (
-                              <SelectItem
-                                key={school}
-                                value={school}
-                                className="rounded-xl"
-                              >
-                                {school}
-                              </SelectItem>
-                            ))}
-                            {filteredSchools.length === 0 && (
-                              <div className="p-2 text-sm text-gray-500 text-center">
-                                검색 결과가 없습니다
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">
-                      학과
-                    </label>
-                    <Select
-                      value={selectedDepartment}
-                      onValueChange={handleDepartmentChange}
-                      disabled={!selectedSchool || isLoadingDepartments}
-                      required
-                    >
-                      <SelectTrigger className="h-12 rounded-2xl border-gray-200 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed w-full">
-                        <SelectValue
-                          placeholder={
-                            !selectedSchool
-                              ? "먼저 학교를 선택하세요"
-                              : isLoadingDepartments
-                              ? "학과 정보를 불러오는 중..."
-                              : "학과를 선택하세요"
-                          }
-                        >
-                          {selectedDepartment}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl">
-                        {!isLoadingDepartments && departments.length > 0 && (
-                          <div className="p-2">
-                            <Input
-                              placeholder="학과명 검색..."
-                              value={departmentSearchQuery}
-                              onChange={(e) =>
-                                setDepartmentSearchQuery(e.target.value)
-                              }
-                              className="mb-2 rounded-xl border-gray-200"
-                            />
-                          </div>
-                        )}
-                        {filteredDepartments.map((department) => (
-                          <SelectItem
-                            key={department}
-                            value={department}
-                            className="rounded-xl"
-                          >
-                            {department}
-                          </SelectItem>
-                        ))}
-                        {!isLoadingDepartments &&
-                          filteredDepartments.length === 0 &&
-                          departments.length > 0 && (
-                            <div className="p-2 text-sm text-gray-500 text-center">
-                              검색 결과가 없습니다
-                            </div>
-                          )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="bg-yellow-50 rounded-2xl p-4 mt-4">
-                    <h4 className="font-medium text-yellow-800 mb-2">
-                      ⚠️ 주의사항
-                    </h4>
-                    <ul className="text-sm text-yellow-700 space-y-1">
-                      <li>
-                        • 학교 정보를 수정하면 기록 인증 및 학교 인증을 다시
-                        진행해야 합니다
-                      </li>
-                      <li>• 학교 이메일 인증이 필요할 수 있습니다</li>
-                    </ul>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* 저장 버튼 */}
-            <div className="space-y-4 pb-6">
-              <Button
-                type="submit"
-                disabled={isSaving}
-                className="w-full h-14 bg-black text-white hover:bg-gray-800 rounded-2xl text-lg font-medium disabled:bg-gray-200 disabled:text-gray-500"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    저장 중...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-5 h-5 mr-2" />
-                    변경사항 저장
-                  </>
-                )}
-              </Button>
-
-              {/* 안내사항 */}
-              <div className="bg-blue-50 rounded-2xl p-4">
-                <h4 className="font-medium text-blue-800 mb-2">ℹ️ 수정 안내</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• 이메일은 로그인 ID로 사용되어 변경할 수 없습니다</li>
-                  <li>
-                    • 학교 변경시 대학교 이메일 재인증이 필요할 수 있습니다
-                  </li>
-                  <li>• 변경된 정보는 즉시 반영됩니다</li>
-                </ul>
-              </div>
-            </div>
+            <ProfileImageUploader
+              profileImageUrl={formData.profileImageUrl}
+              onImageUpload={handleImageUpload}
+              onRemoveImage={handleRemoveImage}
+            />
+            <BasicInfoFields
+              formData={formData}
+              onInputChange={handleInputChange}
+              userEmail={user.email}
+            />
+            <SchoolInfoFields
+              isEditingSchool={isEditingSchool}
+              setIsEditingSchool={setIsEditingSchool}
+              selectedSchool={selectedSchool}
+              setSelectedSchool={setSelectedSchool}
+              selectedDepartment={selectedDepartment}
+              setSelectedDepartment={setSelectedDepartment}
+              universities={universities}
+              departments={departments}
+              isLoadingUniversities={isLoadingUniversities}
+              isLoadingDepartments={isLoadingDepartments}
+              schoolSearchQuery={schoolSearchQuery}
+              setSchoolSearchQuery={setSchoolSearchQuery}
+              departmentSearchQuery={departmentSearchQuery}
+              setDepartmentSearchQuery={setDepartmentSearchQuery}
+              handleSchoolChange={handleSchoolChange}
+              handleDepartmentChange={handleDepartmentChange}
+              user={user}
+            />
+            <SaveButton isSaving={isSaving} onSubmit={handleSubmit} />
           </form>
         )}
       </div>
