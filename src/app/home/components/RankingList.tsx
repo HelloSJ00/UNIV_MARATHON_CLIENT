@@ -11,7 +11,7 @@ interface Runner {
     studentNumber?: string;
     profileImageUrl?: string;
   };
-  type: string;
+  type: "TEN_KM" | "HALF" | "FULL";
   rank: number;
   recordTimeInSeconds: number;
 }
@@ -22,7 +22,7 @@ interface RankingListProps {
   setOpenCard: (v: string | null) => void;
   isIntegratedRanking: boolean;
   formatTime: (seconds: number) => string;
-  formatPace: (seconds: number, type: string) => string;
+  formatPace: (seconds: number, type: "TEN_KM" | "HALF" | "FULL") => string;
 }
 
 export default function RankingList({

@@ -4,11 +4,16 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, User, Loader2, Trophy } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
-import { getRunningRankings, type RunningRank } from "./api/getRunningRankings";
+import {
+  getRunningRankings,
+  type RunningRank,
+  type MyRecord,
+} from "./api/getRunningRankings";
 import { getAllUniversityName } from "@/app/api/common/getAllUniversityName";
 import FilterSection from "./components/FilterSection";
 import RankingList from "./components/RankingList";
 import InitialMessage from "./components/InitialMessage";
+import MyRankCard from "./components/MyRankCard";
 
 export default function HomePage() {
   const [selectedSchool, setSelectedSchool] = useState("");
@@ -22,6 +27,7 @@ export default function HomePage() {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   const [isLoadingRankings, setIsLoadingRankings] = useState(false);
   const [rankingsData, setRankingsData] = useState<RunningRank[]>([]);
+  const [myRecordData, setMyRecordData] = useState<MyRecord | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [isIntegratedRanking, setIsIntegratedRanking] = useState(false);
   const [universities, setUniversities] = useState<string[]>([]);
@@ -67,17 +73,21 @@ export default function HomePage() {
     setHasSearched(true);
     setIsFilterExpanded(false);
     try {
-      const response = await getRunningRankings(
+      const { rankings, myrecord } = await getRunningRankings(
         selectedEvent,
+        selectedGender,
         searchQuery || undefined,
-        selectedGender
+        accessToken ?? undefined
       );
-      const filteredData = filterByGender(response.data);
+
+      const rankingsList = rankings || [];
+      const filteredData = filterByGender(rankingsList);
       const rerankedData = filteredData.map((runner, index) => ({
         ...runner,
         rank: index + 1,
       }));
       setRankingsData(rerankedData);
+      setMyRecordData(myrecord);
     } catch (error) {
       console.error("랭킹 조회 실패:", error);
       alert("랭킹 조회에 실패했습니다.");
@@ -94,6 +104,7 @@ export default function HomePage() {
     setSelectedGender("ALL");
     setIsIntegratedRanking(false);
     setRankingsData([]);
+    setMyRecordData(null);
     setHasSearched(false);
   };
 
@@ -112,14 +123,14 @@ export default function HomePage() {
       .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
-  const formatPace = (seconds: number, type: string) => {
+  const formatPace = (seconds: number, type: "TEN_KM" | "HALF" | "FULL") => {
     let distance = 10;
     if (type === "HALF") distance = 21.0975;
     if (type === "FULL") distance = 42.195;
     const pace = seconds / distance;
     const paceMin = Math.floor(pace / 60);
     const paceSec = Math.round(pace % 60);
-    return `${paceMin}:${paceSec.toString().padStart(2, "0")}/km`;
+    return `${paceMin}'${paceSec.toString().padStart(2, "0")}"/km`;
   };
 
   return (
@@ -162,7 +173,7 @@ export default function HomePage() {
               <h2 className="text-lg font-bold">
                 {isIntegratedRanking
                   ? "전국 통합 랭킹"
-                  : `${selectedSchool} 랭킹`}
+                  : `${selectedSchool || searchQuery} 랭킹`}
               </h2>
             </div>
 
@@ -176,7 +187,7 @@ export default function HomePage() {
                   </span>
                 ) : (
                   <span className="font-medium text-black">
-                    {selectedSchool}
+                    {selectedSchool || searchQuery}
                   </span>
                 )}
                 <span>•</span>
@@ -195,10 +206,21 @@ export default function HomePage() {
               </div>
             ) : rankingsData.length > 0 ? (
               <>
+                <MyRankCard
+                  myInfo={
+                    myRecordData
+                      ? { ...myRecordData, user: myRecordData.user }
+                      : undefined
+                  }
+                  formatTime={formatTime}
+                  formatPace={formatPace}
+                />
                 <p className="text-sm text-gray-600 mb-6">
                   {isIntegratedRanking
                     ? `전국 ${rankingsData.length}명의 랭킹을 확인할 수 있습니다`
-                    : `${selectedSchool} 내 ${rankingsData.length}명의 랭킹을 확인할 수 있습니다`}
+                    : `${selectedSchool || searchQuery} 내 ${
+                        rankingsData.length
+                      }명의 랭킹을 확인할 수 있습니다`}
                 </p>
                 <RankingList
                   rankingsData={rankingsData.map((r) => ({

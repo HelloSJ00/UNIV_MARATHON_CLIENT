@@ -20,22 +20,38 @@ export interface RunningRank {
   user: RunningRankUser;
 }
 
+export interface MyRecord extends RunningRank {
+  totalCount: number;
+  isInTop10: boolean;
+}
+
 export interface RunningRankResponse {
-  data: RunningRank[];
+  rankings: RunningRank[];
+  myrecord: MyRecord | null;
 }
 
 export async function getRunningRankings(
   runningType: "TEN_KM" | "HALF" | "FULL",
+  gender: "MALE" | "FEMALE" | "ALL",
   universityName?: string,
-  gender?: string
+  accessToken?: string
 ): Promise<RunningRankResponse> {
   const params = new URLSearchParams({
     runningType,
+    gender,
     ...(universityName && { universityName }),
-    ...(gender && { gender }),
   });
+
+  const headers: { [key: string]: string } = {};
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  }
+
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking?${params}`
+    `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking?${params}`,
+    { headers }
   );
-  return response.data;
+  console.log("API 응답:", response.data);
+  console.log("반환될 데이터:", response.data.data);
+  return response.data.data;
 }

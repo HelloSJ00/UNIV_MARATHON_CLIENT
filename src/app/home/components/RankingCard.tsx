@@ -15,7 +15,7 @@ interface Runner {
   name?: string;
   gender?: string;
   school?: string;
-  type?: string;
+  type?: "TEN_KM" | "HALF" | "FULL";
   rank: number;
   recordTimeInSeconds?: number;
   time?: string;
@@ -28,7 +28,7 @@ interface RankingCardProps {
   onClick: () => void;
   isIntegratedRanking: boolean;
   formatTime: (seconds: number) => string;
-  formatPace: (seconds: number, type: string) => string;
+  formatPace: (seconds: number, type: "TEN_KM" | "HALF" | "FULL") => string;
 }
 
 export default function RankingCard({
