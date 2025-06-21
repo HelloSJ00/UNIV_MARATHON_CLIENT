@@ -29,10 +29,9 @@ export default function RecordSection({ user }: RecordSectionProps) {
   const formatPace = (seconds: number, eventType: string) => {
     // 각 종목별 거리 (km)
     const distances = {
-      FIVE_KM: 5,
       TEN_KM: 10,
-      HALF_MARATHON: 21.1,
-      FULL_MARATHON: 42.195,
+      HALF: 21.1,
+      FULL: 42.195,
     };
 
     const distance = distances[eventType as keyof typeof distances];
