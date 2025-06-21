@@ -70,9 +70,9 @@ export default function RecordSection({ user }: RecordSectionProps) {
                       ? "5K"
                       : key === "TEN_KM"
                       ? "10K"
-                      : key === "HALF_MARATHON"
+                      : key === "HALF"
                       ? "HALF"
-                      : key === "FULL_MARATHON"
+                      : key === "FULL"
                       ? "FULL"
                       : key}
                   </span>
