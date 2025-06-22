@@ -18,6 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
+      <head>
+        <link rel="icon" href="/univmarathon.svg" type="image/svg+xml" />
+      </head>
       <body className={inter.className}>
         <QueryProvider>
           <ProtectedRoute>{children}</ProtectedRoute>
