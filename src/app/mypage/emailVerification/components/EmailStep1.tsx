@@ -84,11 +84,14 @@ const EmailStep1 = ({
     </div>
     <div className="text-center mt-4">
       <p className="text-sm text-gray-500 mb-2">이메일 확인이 안된다면?</p>
+      <p className="text-sm text-gray-500 mb-2">
+        졸업생인데 이메일이 기억나지 않는다면?
+      </p>
       <a
         href="https://open.kakao.com/o/suC2y2Ch"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-block px-4 py-2 bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-500 transition"
+        className="inline-block px-4 py-2 bg-yellow-200 text-black rounded-lg font-semibold hover:bg-yellow-500 transition"
       >
         오픈카톡 문의하기
       </a>

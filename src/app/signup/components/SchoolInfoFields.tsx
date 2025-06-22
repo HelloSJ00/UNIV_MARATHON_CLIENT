@@ -171,6 +171,19 @@ const SchoolInfoFields = ({
           <p className="text-red-500 text-sm mt-1">{errors.major.message}</p>
         )}
       </div>
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-500 mb-2">
+          대학 정보가 없다면 아래로 연락주세요 !
+        </p>
+        <a
+          href="https://open.kakao.com/o/suC2y2Ch"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-4 py-2 bg-yellow-200 text-black rounded-lg font-semibold hover:bg-yellow-500 transition"
+        >
+          오픈카톡 문의하기
+        </a>
+      </div>
     </div>
   );
 };
