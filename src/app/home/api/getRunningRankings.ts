@@ -1,7 +1,11 @@
 import axios from "@/lib/axios";
-
-export interface RunningRankUser {
-  id: number;
+export interface RunningRank {
+  rank: number;
+  type: "TEN_KM" | "HALF" | "FULL";
+  marathonName: string;
+  recordTimeInSeconds: number;
+  recordDate: string | null;
+  userId: number;
   name: string;
   email: string;
   gender: "MALE" | "FEMALE";
@@ -11,17 +15,9 @@ export interface RunningRankUser {
   profileImageUrl: string | null;
 }
 
-export interface RunningRank {
-  rank: number;
-  type: "TEN_KM" | "HALF" | "FULL";
-  marathonName: string;
-  recordTimeInSeconds: number;
-  recordDate: string | null;
-  user: RunningRankUser;
-}
-
 export interface MyRecord extends RunningRank {
   totalCount: number;
+  ranking: number;
   isInTop10: boolean;
 }
 
@@ -46,6 +42,12 @@ export async function getRunningRankings(
   if (accessToken) {
     headers["Authorization"] = `Bearer ${accessToken}`;
   }
+
+  console.log("API 요청 정보:", {
+    url: `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking`,
+    params: Object.fromEntries(params),
+    headers,
+  });
 
   const response = await axios.get(
     `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking?${params}`,

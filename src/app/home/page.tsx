@@ -65,7 +65,7 @@ export default function HomePage() {
     if (!selectedGender || selectedGender === "ALL") {
       return data;
     }
-    return data.filter((runner) => runner.user.gender === selectedGender);
+    return data.filter((runner) => runner.gender === selectedGender);
   };
 
   const fetchRankings = async () => {
@@ -207,11 +207,7 @@ export default function HomePage() {
             ) : rankingsData.length > 0 ? (
               <>
                 <MyRankCard
-                  myInfo={
-                    myRecordData
-                      ? { ...myRecordData, user: myRecordData.user }
-                      : undefined
-                  }
+                  myInfo={myRecordData ?? undefined}
                   formatTime={formatTime}
                   formatPace={formatPace}
                 />
@@ -223,15 +219,7 @@ export default function HomePage() {
                       }명의 랭킹을 확인할 수 있습니다`}
                 </p>
                 <RankingList
-                  rankingsData={rankingsData.map((r) => ({
-                    ...r,
-                    user: {
-                      ...r.user,
-                      id: String(r.user.id),
-                      studentNumber: r.user.studentNumber ?? undefined,
-                      profileImageUrl: r.user.profileImageUrl ?? undefined,
-                    },
-                  }))}
+                  rankingsData={rankingsData}
                   openCard={openCard}
                   setOpenCard={setOpenCard}
                   isIntegratedRanking={isIntegratedRanking}

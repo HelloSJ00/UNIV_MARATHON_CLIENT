@@ -1,19 +1,19 @@
 import { Trophy, User } from "lucide-react";
 import React from "react";
+import Image from "next/image";
 
 // 프로젝트의 데이터 구조에 맞게 타입 정의
 interface MyRankInfo {
   rank: number;
   recordTimeInSeconds: number;
   type: "TEN_KM" | "HALF" | "FULL";
-  user: {
-    name: string;
-    gender: "MALE" | "FEMALE";
-    universityName: string;
-    profileImageUrl?: string | null;
-  };
+  name: string;
+  gender: "MALE" | "FEMALE";
+  universityName: string;
+  profileImageUrl?: string | null;
   totalCount?: number;
   isInTop10?: boolean;
+  ranking: number;
 }
 
 interface MyRankCardProps {
@@ -40,13 +40,43 @@ export default function MyRankCard({
         </div>
         <span className="font-medium text-blue-800">내 순위</span>
       </div>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center relative overflow-hidden">
+          {myInfo.profileImageUrl ? (
+            <Image
+              src={myInfo.profileImageUrl}
+              alt="내 프로필"
+              className="object-cover rounded-full"
+              fill
+              priority
+            />
+          ) : (
+            <User className="w-5 h-5 text-gray-400" />
+          )}
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-semibold">{myInfo.name}</span>
+            <span
+              className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                myInfo.gender === "MALE"
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-pink-100 text-pink-700"
+              }`}
+            >
+              {myInfo.gender === "MALE" ? "남" : "여"}
+            </span>
+          </div>
+          <div className="text-sm text-gray-600">{myInfo.universityName}</div>
+        </div>
+      </div>
 
       <div className="bg-gray-50 rounded-xl p-3 mb-3">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-600">순위</span>
           <div className="flex items-baseline gap-1">
             <span className="text-xl font-bold text-blue-600">
-              {myInfo.rank}위
+              {myInfo.ranking}위
             </span>
             {myInfo.totalCount && (
               <span className="text-sm text-gray-500">

@@ -3,15 +3,6 @@ import Image from "next/image";
 import React from "react";
 
 interface Runner {
-  user?: {
-    id: string;
-    name: string;
-    gender: "MALE" | "FEMALE";
-    universityName: string;
-    majorName?: string;
-    studentNumber?: string;
-    profileImageUrl?: string;
-  };
   name?: string;
   gender?: string;
   school?: string;
@@ -20,6 +11,12 @@ interface Runner {
   recordTimeInSeconds?: number;
   time?: string;
   marathonName?: string;
+  id?: number;
+  email?: string;
+  universityName?: string;
+  majorName?: string;
+  studentNumber?: string | null;
+  profileImageUrl?: string | null;
 }
 
 interface RankingCardProps {
@@ -63,27 +60,25 @@ export default function RankingCard({
             <div className="flex items-center gap-2 mb-1">
               <span
                 className="font-semibold text-gray-900 text-base"
-                title={runner.user?.name || runner.name}
+                title={runner.name}
               >
-                {runner.user?.name || runner.name}
+                {runner.name}
               </span>
               <span
                 className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
-                  runner.user?.gender === "MALE" || runner.gender === "male"
+                  runner.gender === "MALE"
                     ? "bg-blue-100 text-blue-700 border border-blue-200"
                     : "bg-pink-100 text-pink-700 border border-pink-200"
                 }`}
               >
-                {runner.user?.gender === "MALE" || runner.gender === "male"
-                  ? "남"
-                  : "여"}
+                {runner.gender === "MALE" ? "남" : "여"}
               </span>
             </div>
             <div
               className="text-sm text-gray-600 font-medium truncate"
-              title={runner.user?.universityName || runner.school}
+              title={runner.universityName}
             >
-              {runner.user?.universityName || runner.school}
+              {runner.universityName}
             </div>
           </div>
         </div>
@@ -127,9 +122,9 @@ export default function RankingCard({
         <div className="border-t border-gray-100 bg-gray-50 p-4">
           <div className="flex items-start gap-4">
             <div className="w-16 h-16 rounded-full overflow-hidden bg-white border-2 border-gray-200 shadow-sm flex items-center justify-center flex-shrink-0">
-              {runner.user?.profileImageUrl ? (
+              {runner.profileImageUrl ? (
                 <Image
-                  src={runner.user.profileImageUrl || "/placeholder.svg"}
+                  src={runner.profileImageUrl || "/placeholder.svg"}
                   alt="프로필"
                   className="object-cover w-full h-full"
                   width={64}
@@ -146,16 +141,16 @@ export default function RankingCard({
                   <p className="text-xs text-gray-500 font-medium mb-1">전공</p>
                   <p
                     className="text-sm font-medium text-gray-800 truncate"
-                    title={runner.user?.majorName || "정보 없음"}
+                    title={runner.majorName || "정보 없음"}
                   >
-                    {runner.user?.majorName || "정보 없음"}
+                    {runner.majorName || "정보 없음"}
                   </p>
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs text-gray-500 font-medium mb-1">학번</p>
                   <p className="text-sm font-medium text-gray-800">
-                    {runner.user?.studentNumber
-                      ? `${runner.user.studentNumber.substring(2, 4)}학번`
+                    {runner.studentNumber
+                      ? `${runner.studentNumber.substring(2, 4)}학번`
                       : "정보 없음"}
                   </p>
                 </div>

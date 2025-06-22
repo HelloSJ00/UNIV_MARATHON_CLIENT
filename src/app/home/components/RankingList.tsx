@@ -2,15 +2,13 @@ import React from "react";
 import RankingCard from "./RankingCard";
 
 interface Runner {
-  user: {
-    id: string;
-    name: string;
-    gender: "MALE" | "FEMALE";
-    universityName: string;
-    majorName?: string;
-    studentNumber?: string;
-    profileImageUrl?: string;
-  };
+  userId: number;
+  name: string;
+  gender: "MALE" | "FEMALE";
+  universityName: string;
+  majorName?: string;
+  studentNumber?: string | null;
+  profileImageUrl?: string | null;
   type: "TEN_KM" | "HALF" | "FULL";
   rank: number;
   recordTimeInSeconds: number;
@@ -36,7 +34,7 @@ export default function RankingList({
   return (
     <div className="space-y-3">
       {rankingsData.map((runner) => {
-        const cardKey = `${runner.user.id}-${runner.type}`;
+        const cardKey = `${runner.userId}-${runner.type}`;
         const isOpen = openCard === cardKey;
         return (
           <RankingCard
