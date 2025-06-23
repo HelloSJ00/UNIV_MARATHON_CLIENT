@@ -31,10 +31,18 @@ export default function InitialMessage({
             <span>통합 랭킹: 전국 모든 대학생 중 순위</span>
           </div>
         </div>
+        <a
+          href="https://second-pony-0ca.notion.site/Univ-Marathon-Rank-218b52264a2d809faafaf470e1c92eae"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block mb-3 text-black-600 underline hover:text-blue-800 text-sm font-medium"
+        >
+          사용 가이드 및 안내
+        </a>
         <Button
           onClick={() => setIsFilterExpanded(true)}
           variant="outline"
-          className="border-gray-200 hover:bg-gray-100 rounded-2xl"
+          className="border-gray-200 hover:bg-gray-100 rounded-2xl w-full"
         >
           검색 시작하기
         </Button>
