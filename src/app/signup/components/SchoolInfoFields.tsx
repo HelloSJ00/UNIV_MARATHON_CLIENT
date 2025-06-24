@@ -9,24 +9,12 @@ import {
 import { GraduationCap } from "lucide-react";
 import React from "react";
 import { UseFormSetValue } from "react-hook-form";
-
-// SignupFormData 타입을 직접 정의
-interface SignupFormData {
-  email: string;
-  name: string;
-  password: string;
-  birthDate: string;
-  gender: "MALE" | "FEMALE";
-  studentId: string;
-  university: string;
-  major: string;
-  profileImage: FileList;
-}
+import { SignupForm } from "../api/reqSignup";
 
 interface SchoolInfoFieldsProps {
   selectedUniversity: string;
   setSelectedUniversity: (value: string) => void;
-  setValue: UseFormSetValue<SignupFormData & { passwordConfirm: string }>;
+  setValue: UseFormSetValue<SignupForm & { passwordConfirm: string }>;
   isLoadingUniversities: boolean;
   universities: string[];
   universitySearchQuery: string;
@@ -170,6 +158,51 @@ const SchoolInfoFields = ({
         {errors.major && (
           <p className="text-red-500 text-sm mt-1">{errors.major.message}</p>
         )}
+        <div className="flex items-center justify-between">
+          <label className="text-xs text-gray-500">학과 공개 여부</label>
+          <Select
+            defaultValue="public"
+            onValueChange={(value) =>
+              setValue("isMajorVisible", value === "public")
+            }
+          >
+            <SelectTrigger className="w-20 h-7 rounded-lg border-gray-200 bg-white text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg">
+              <SelectItem value="public" className="rounded-md text-xs">
+                공개
+              </SelectItem>
+              <SelectItem value="private" className="rounded-md text-xs">
+                비공개
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">재학 상태</label>
+        <Select
+          required
+          onValueChange={(value) =>
+            setValue(
+              "graduationStatus",
+              value === "current" ? "ENROLLED" : "GRADUATED"
+            )
+          }
+        >
+          <SelectTrigger className="h-12 rounded-2xl border-gray-200 bg-white w-full">
+            <SelectValue placeholder="재학 상태를 선택하세요" />
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl">
+            <SelectItem value="current" className="rounded-xl">
+              재학생
+            </SelectItem>
+            <SelectItem value="graduate" className="rounded-xl">
+              졸업생
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="text-center mt-4">
         <p className="text-sm text-gray-500 mb-2">

@@ -23,6 +23,9 @@ export default function HomePage() {
   const [selectedGender, setSelectedGender] = useState<
     "MALE" | "FEMALE" | "ALL"
   >("ALL");
+  const [selectedGraduationStatus, setSelectedGraduationStatus] = useState<
+    "ENROLLED" | "GRADUATED" | "ALL"
+  >("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   const [isLoadingRankings, setIsLoadingRankings] = useState(false);
@@ -77,7 +80,10 @@ export default function HomePage() {
         selectedEvent,
         selectedGender,
         searchQuery || undefined,
-        accessToken ?? undefined
+        accessToken ?? undefined,
+        selectedGraduationStatus === "ALL"
+          ? undefined
+          : selectedGraduationStatus
       );
 
       const rankingsList = rankings || [];
@@ -102,6 +108,7 @@ export default function HomePage() {
     setSearchQuery("");
     setSelectedEvent("HALF");
     setSelectedGender("ALL");
+    setSelectedGraduationStatus("ALL");
     setIsIntegratedRanking(false);
     setRankingsData([]);
     setMyRecordData(null);
@@ -146,6 +153,8 @@ export default function HomePage() {
           setSelectedEvent={setSelectedEvent}
           selectedGender={selectedGender}
           setSelectedGender={setSelectedGender}
+          selectedGraduationStatus={selectedGraduationStatus}
+          setSelectedGraduationStatus={setSelectedGraduationStatus}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           isIntegratedRanking={isIntegratedRanking}
@@ -196,6 +205,16 @@ export default function HomePage() {
                 <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
                   {getGenderLabel(selectedGender)}
                 </span>
+                {selectedGraduationStatus !== "ALL" && (
+                  <>
+                    <span>•</span>
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                      {selectedGraduationStatus === "ENROLLED"
+                        ? "재학생"
+                        : "졸업생"}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -219,7 +238,12 @@ export default function HomePage() {
                       } 내 100명의 랭킹을 확인할 수 있습니다`}
                 </p>
                 <RankingList
-                  rankingsData={rankingsData}
+                  rankingsData={rankingsData.map((runner) => ({
+                    ...runner,
+                    isNameVisible: true,
+                    isStudentNumberVisible: true,
+                    isMajorVisible: true,
+                  }))}
                   openCard={openCard}
                   setOpenCard={setOpenCard}
                   isIntegratedRanking={isIntegratedRanking}

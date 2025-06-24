@@ -31,6 +31,8 @@ interface FilterSectionProps {
   isLoadingUniversities: boolean;
   accessToken: string | null;
   user: Record<string, unknown> | null;
+  selectedGraduationStatus: "ENROLLED" | "GRADUATED" | "ALL";
+  setSelectedGraduationStatus: (v: "ENROLLED" | "GRADUATED" | "ALL") => void;
 }
 
 const events = ["TEN_KM", "HALF", "FULL"];
@@ -38,6 +40,12 @@ const genders = [
   { value: "ALL", label: "전체" },
   { value: "MALE", label: "남성" },
   { value: "FEMALE", label: "여성" },
+];
+
+const graduationStatuses = [
+  { value: "ALL", label: "전체" },
+  { value: "ENROLLED", label: "재학생" },
+  { value: "GRADUATED", label: "졸업생" },
 ];
 
 export default function FilterSection({
@@ -60,6 +68,8 @@ export default function FilterSection({
   isLoadingUniversities,
   accessToken,
   user,
+  selectedGraduationStatus,
+  setSelectedGraduationStatus,
 }: FilterSectionProps) {
   const filteredSchools = universities.filter((school) =>
     school.toLowerCase().includes(searchQuery.toLowerCase())
@@ -245,6 +255,35 @@ export default function FilterSection({
                     className="rounded-xl"
                   >
                     {gender.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Graduation Status Selection */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              재학생/졸업생 구분
+            </label>
+            <Select
+              value={selectedGraduationStatus}
+              onValueChange={(value) =>
+                setSelectedGraduationStatus(
+                  value as "ENROLLED" | "GRADUATED" | "ALL"
+                )
+              }
+            >
+              <SelectTrigger className="w-full h-12 rounded-2xl border-gray-200 bg-white">
+                <SelectValue placeholder="재학 상태를 선택하세요" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl">
+                {graduationStatuses.map((status) => (
+                  <SelectItem
+                    key={status.value}
+                    value={status.value}
+                    className="rounded-xl"
+                  >
+                    {status.label}
                   </SelectItem>
                 ))}
               </SelectContent>

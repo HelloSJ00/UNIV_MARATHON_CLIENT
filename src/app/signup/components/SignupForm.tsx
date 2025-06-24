@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { getAllUniversityName } from "@/app/api/common/getAllUniversityName";
 import { getMajorOfUniversity } from "@/app/api/common/getMajorOfUniversity";
 import { checkEmailAvailable } from "@/app/api/common/checkEmail";
-import { signup } from "../api/reqSignup";
+import { signup, type SignupForm } from "../api/reqSignup";
 import { uploadToS3 } from "@/utils/s3";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -17,18 +17,6 @@ import StudentIdSelect from "./StudentIdSelect";
 import SchoolInfoFields from "./SchoolInfoFields";
 import BasicInfoFields from "./BasicInfoFields";
 
-interface SignupFormData {
-  email: string;
-  name: string;
-  password: string;
-  birthDate: string;
-  gender: "MALE" | "FEMALE";
-  studentId: string;
-  university: string;
-  major: string;
-  profileImage: FileList;
-}
-
 const SignupForm = () => {
   const {
     register,
@@ -36,7 +24,15 @@ const SignupForm = () => {
     setValue,
     formState: { errors },
     watch,
-  } = useForm<SignupFormData & { passwordConfirm: string }>();
+  } = useForm<SignupForm & { passwordConfirm: string }>({
+    mode: "onChange",
+    defaultValues: {
+      isNameVisible: true,
+      isStudentNumberVisible: true,
+      isMajorVisible: true,
+    },
+    criteriaMode: "all",
+  });
   const [selectedUniversity, setSelectedUniversity] = useState("");
   const [selectedMajor, setSelectedMajor] = useState("");
   const [majors, setMajors] = useState<string[]>([]);
@@ -146,26 +142,50 @@ const SignupForm = () => {
     }
   };
 
-  const onSubmit = async (
-    data: SignupFormData & { passwordConfirm: string }
-  ) => {
+  // register 함수를 사용하여 필수 필드들을 등록
+  useEffect(() => {
+    register("email", { required: "이메일을 입력해주세요" });
+    register("password", { required: "비밀번호를 입력해주세요" });
+    register("name", { required: "이름을 입력해주세요" });
+    register("birthDate", { required: "생년월일을 선택해주세요" });
+    register("gender", { required: "성별을 선택해주세요" });
+    register("university", { required: "대학교를 선택해주세요" });
+    register("major", { required: "학과를 선택해주세요" });
+    register("studentNumber", { required: "학번을 선택해주세요" });
+    register("graduationStatus", { required: "재학 상태를 선택해주세요" });
+  }, [register]);
+
+  const onSubmit = async (data: SignupForm & { passwordConfirm: string }) => {
+    console.log("onSubmit 함수 실행됨");
+
+    // 이메일 중복 체크 확인
+    if (emailCheckResult !== "available") {
+      alert("이메일 중복 확인을 완료해주세요.");
+      return;
+    }
+
     try {
-      let profileImage = null;
+      let profileImageUrl = null;
       if (selectedFile) {
+        console.log("프로필 이미지 업로드 시작");
         const { url } = await uploadToS3(selectedFile);
-        profileImage = url;
+        profileImageUrl = url;
+        console.log("프로필 이미지 업로드 완료:", url);
       }
       const signupData = {
         ...data,
-        profileImage,
+        profileImage: profileImageUrl,
+        isNameVisible: true,
+        isStudentNumberVisible: true,
+        isMajorVisible: true,
       };
-      console.log("[회원가입 폼 전송]", signupData);
+      console.log("[회원가입 데이터]", signupData);
       await signup(signupData);
       alert("회원가입이 완료되었습니다!");
       router.push("/login");
     } catch (error) {
+      console.error("[회원가입 에러]", error);
       alert("회원가입 중 오류가 발생했습니다.");
-      console.error(error);
     }
   };
 
@@ -176,7 +196,33 @@ const SignupForm = () => {
         <p className="text-gray-600">전국 대학생 순위를 확인해 보세요</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault(); // 기본 제출 동작 방지
+          console.log("폼 제출 시작");
+          console.log("현재 에러 상태:", errors);
+          handleSubmit(
+            (data) => {
+              console.log("유효성 검사 통과, 데이터:", data);
+              onSubmit(data);
+            },
+            (errors) => {
+              console.log("폼 유효성 검사 실패:", errors);
+              // 에러 메시지 표시
+              if (errors.email) alert("이메일을 확인해주세요.");
+              if (errors.password) alert("비밀번호를 확인해주세요.");
+              if (errors.name) alert("이름을 입력해주세요.");
+              if (errors.birthDate) alert("생년월일을 선택해주세요.");
+              if (errors.gender) alert("성별을 선택해주세요.");
+              if (errors.university) alert("대학교를 선택해주세요.");
+              if (errors.major) alert("학과를 선택해주세요.");
+              if (errors.studentNumber) alert("학번을 선택해주세요.");
+              if (errors.graduationStatus) alert("재학 상태를 선택해주세요.");
+            }
+          )(e);
+        }}
+        className="space-y-6"
+      >
         {/* 프로필 이미지 */}
         <ProfileImageUploader
           previewImage={previewImage}
@@ -239,6 +285,9 @@ const SignupForm = () => {
         <Button
           type="submit"
           className="w-full h-14 bg-black text-white hover:bg-gray-800 rounded-2xl text-lg font-medium"
+          onClick={() => {
+            console.log("회원가입 버튼 클릭 - 폼 제출 시작");
+          }}
         >
           회원가입 완료
         </Button>

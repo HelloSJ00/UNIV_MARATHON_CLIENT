@@ -30,12 +30,14 @@ export async function getRunningRankings(
   runningType: "TEN_KM" | "HALF" | "FULL",
   gender: "MALE" | "FEMALE" | "ALL",
   universityName?: string,
-  accessToken?: string
+  accessToken?: string,
+  graduationStatus?: "ENROLLED" | "GRADUATED"
 ): Promise<RunningRankResponse> {
   const params = new URLSearchParams({
     runningType,
     gender,
     ...(universityName && { universityName }),
+    ...(graduationStatus && { graduationStatus }),
   });
 
   const headers: { [key: string]: string } = {};

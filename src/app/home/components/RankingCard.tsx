@@ -2,7 +2,7 @@ import { Clock, User } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
-interface Runner {
+export interface Runner {
   name?: string;
   gender?: string;
   school?: string;
@@ -11,12 +11,16 @@ interface Runner {
   recordTimeInSeconds?: number;
   time?: string;
   marathonName?: string;
-  id?: number;
+  userId?: number;
   email?: string;
   universityName?: string;
   majorName?: string;
   studentNumber?: string | null;
   profileImageUrl?: string | null;
+  isNameVisible: boolean;
+  isStudentNumberVisible: boolean;
+  isMajorVisible: boolean;
+  graduationStatus?: string;
 }
 
 interface RankingCardProps {
@@ -36,6 +40,29 @@ export default function RankingCard({
   formatTime,
   formatPace,
 }: RankingCardProps) {
+  // 재학 상태 라벨 함수 추가
+  const getGraduationStatusLabel = (status?: string) => {
+    switch (status) {
+      case "ENROLLED":
+        return "재학생";
+      case "GRADUATED":
+        return "졸업생";
+      default:
+        return "재학생"; // 기본값
+    }
+  };
+  // 재학 상태 색상 함수 추가
+  const getGraduationStatusColor = (status?: string) => {
+    switch (status) {
+      case "ENROLLED":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "GRADUATED":
+        return "bg-gray-100 text-gray-700 border-gray-200";
+      default:
+        return "bg-green-100 text-green-700 border-green-200"; // 기본값
+    }
+  };
+
   return (
     <div
       className={`bg-white rounded-2xl border border-gray-100 transition-all duration-300 cursor-pointer overflow-hidden ${
@@ -60,9 +87,11 @@ export default function RankingCard({
             <div className="flex items-center gap-2 mb-1">
               <span
                 className="font-semibold text-gray-900 text-base"
-                title={runner.name}
+                title={
+                  runner.isNameVisible ? runner.name : `${runner.name?.[0]}**`
+                }
               >
-                {runner.name}
+                {runner.isNameVisible ? runner.name : `${runner.name?.[0]}**`}
               </span>
               <span
                 className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
@@ -72,6 +101,13 @@ export default function RankingCard({
                 }`}
               >
                 {runner.gender === "MALE" ? "남" : "여"}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-medium border flex-shrink-0 ${getGraduationStatusColor(
+                  runner.graduationStatus
+                )}`}
+              >
+                {getGraduationStatusLabel(runner.graduationStatus)}
               </span>
             </div>
             <div
@@ -141,17 +177,25 @@ export default function RankingCard({
                   <p className="text-xs text-gray-500 font-medium mb-1">전공</p>
                   <p
                     className="text-sm font-medium text-gray-800 truncate"
-                    title={runner.majorName || "정보 없음"}
+                    title={
+                      runner.isMajorVisible
+                        ? runner.majorName || "정보 없음"
+                        : "비공개"
+                    }
                   >
-                    {runner.majorName || "정보 없음"}
+                    {runner.isMajorVisible
+                      ? runner.majorName || "정보 없음"
+                      : "비공개"}
                   </p>
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs text-gray-500 font-medium mb-1">학번</p>
                   <p className="text-sm font-medium text-gray-800">
-                    {runner.studentNumber
-                      ? `${runner.studentNumber.substring(2, 4)}학번`
-                      : "정보 없음"}
+                    {runner.isStudentNumberVisible
+                      ? runner.studentNumber
+                        ? `${runner.studentNumber.substring(2, 4)}학번`
+                        : "정보 없음"
+                      : "비공개"}
                   </p>
                 </div>
               </div>

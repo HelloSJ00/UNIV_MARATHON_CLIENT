@@ -8,22 +8,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React, { useState, useEffect } from "react";
-interface SignupFormData {
-  email: string;
-  name: string;
-  password: string;
-  birthDate: string;
-  gender: "MALE" | "FEMALE";
-  studentId: string;
-  university: string;
-  major: string;
-  profileImage: FileList;
-}
+import { SignupForm } from "../api/reqSignup";
 
 interface BasicInfoFieldsProps {
-  register: UseFormRegister<SignupFormData & { passwordConfirm: string }>;
+  register: UseFormRegister<SignupForm & { passwordConfirm: string }>;
   errors: Record<string, { message?: string }>;
-  setValue: UseFormSetValue<SignupFormData & { passwordConfirm: string }>;
+  setValue: UseFormSetValue<SignupForm & { passwordConfirm: string }>;
   gender: string;
 }
 
@@ -66,6 +56,27 @@ const BasicInfoFields = ({
         {errors.name && (
           <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
         )}
+        <div className="flex items-center justify-between">
+          <label className="text-xs text-gray-500">이름 공개 여부</label>
+          <Select
+            defaultValue="public"
+            onValueChange={(value) =>
+              setValue("isNameVisible", value === "public")
+            }
+          >
+            <SelectTrigger className="w-20 h-7 rounded-lg border-gray-200 bg-white text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg">
+              <SelectItem value="public" className="rounded-md text-xs">
+                공개
+              </SelectItem>
+              <SelectItem value="private" className="rounded-md text-xs">
+                비공개
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">생년월일</label>
