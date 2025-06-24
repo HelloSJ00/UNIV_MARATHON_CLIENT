@@ -21,17 +21,16 @@ const SignupForm = () => {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
+    setValue,
     watch,
   } = useForm<SignupForm & { passwordConfirm: string }>({
-    mode: "onChange",
     defaultValues: {
       isNameVisible: true,
       isStudentNumberVisible: true,
       isMajorVisible: true,
+      graduationStatus: "ENROLLED",
     },
-    criteriaMode: "all",
   });
   const [selectedUniversity, setSelectedUniversity] = useState("");
   const [selectedMajor, setSelectedMajor] = useState("");
@@ -53,7 +52,16 @@ const SignupForm = () => {
 
   const password = watch("password");
   const gender = watch("gender");
+  const isNameVisible = watch("isNameVisible");
+  const isMajorVisible = watch("isMajorVisible");
   const router = useRouter();
+
+  useEffect(() => {
+    setValue("isNameVisible", true);
+    setValue("isStudentNumberVisible", true);
+    setValue("isMajorVisible", true);
+    setValue("graduationStatus", "ENROLLED");
+  }, [setValue]);
 
   // 이메일 변경시 중복체크 결과 초기화
   useEffect(() => {
@@ -175,12 +183,10 @@ const SignupForm = () => {
       const signupData = {
         ...data,
         profileImage: profileImageUrl,
-        isNameVisible: true,
-        isStudentNumberVisible: true,
-        isMajorVisible: true,
       };
       console.log("[회원가입 데이터]", signupData);
-      await signup(signupData);
+      const response = await signup(signupData);
+      console.log("[회원가입 결과]", response);
       alert("회원가입이 완료되었습니다!");
       router.push("/login");
     } catch (error) {
@@ -254,6 +260,7 @@ const SignupForm = () => {
             errors={errors}
             setValue={setValue}
             gender={gender}
+            isNameVisible={isNameVisible}
           />
 
           <StudentIdSelect
@@ -279,6 +286,7 @@ const SignupForm = () => {
           majors={majors}
           majorSearchQuery={majorSearchQuery}
           setMajorSearchQuery={setMajorSearchQuery}
+          isMajorVisible={isMajorVisible}
         />
 
         {/* 회원가입 버튼 */}

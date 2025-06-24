@@ -26,6 +26,7 @@ interface SchoolInfoFieldsProps {
   majors: string[];
   majorSearchQuery: string;
   setMajorSearchQuery: (value: string) => void;
+  isMajorVisible: boolean;
 }
 
 const SchoolInfoFields = ({
@@ -43,6 +44,7 @@ const SchoolInfoFields = ({
   majors,
   majorSearchQuery,
   setMajorSearchQuery,
+  isMajorVisible,
 }: SchoolInfoFieldsProps) => {
   const filteredUniversities = universities.filter((university) =>
     university.toLowerCase().includes(universitySearchQuery.toLowerCase())
@@ -161,7 +163,7 @@ const SchoolInfoFields = ({
         <div className="flex items-center justify-between">
           <label className="text-xs text-gray-500">학과 공개 여부</label>
           <Select
-            defaultValue="public"
+            value={isMajorVisible ? "public" : "private"}
             onValueChange={(value) =>
               setValue("isMajorVisible", value === "public")
             }

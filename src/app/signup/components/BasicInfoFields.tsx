@@ -15,12 +15,14 @@ interface BasicInfoFieldsProps {
   errors: Record<string, { message?: string }>;
   setValue: UseFormSetValue<SignupForm & { passwordConfirm: string }>;
   gender: string;
+  isNameVisible: boolean;
 }
 
 const BasicInfoFields = ({
   register,
   errors,
   setValue,
+  isNameVisible,
 }: BasicInfoFieldsProps) => {
   const [birthYear, setBirthYear] = useState<string | null>(null);
   const [birthMonth, setBirthMonth] = useState<string | null>(null);
@@ -59,7 +61,7 @@ const BasicInfoFields = ({
         <div className="flex items-center justify-between">
           <label className="text-xs text-gray-500">이름 공개 여부</label>
           <Select
-            defaultValue="public"
+            value={isNameVisible ? "public" : "private"}
             onValueChange={(value) =>
               setValue("isNameVisible", value === "public")
             }
