@@ -20,6 +20,7 @@ export default function ProtectedRoute({
       accessToken,
       user,
       userRole: user?.role,
+      studentNumber: user?.studentNumber,
     });
     // 보호된 라우트 목록
     const protectedRoutes = ["/admin", "/mypage"];

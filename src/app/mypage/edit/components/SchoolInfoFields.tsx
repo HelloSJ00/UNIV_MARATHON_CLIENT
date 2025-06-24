@@ -29,6 +29,10 @@ interface SchoolInfoFieldsProps {
   handleSchoolChange: (school: string) => void;
   handleDepartmentChange: (department: string) => void;
   user: User;
+  formData: {
+    isMajorVisible: boolean;
+  };
+  onInputChange: (field: string, value: boolean) => void;
 }
 
 export default function SchoolInfoFields({
@@ -49,6 +53,8 @@ export default function SchoolInfoFields({
   handleSchoolChange,
   handleDepartmentChange,
   user,
+  formData,
+  onInputChange,
 }: SchoolInfoFieldsProps) {
   const filteredSchools = universities.filter((school) =>
     school.toLowerCase().includes(schoolSearchQuery.toLowerCase())
@@ -89,6 +95,27 @@ export default function SchoolInfoFields({
             취소
           </Button>
         )}
+      </div>
+      <div className="flex items-center justify-between">
+        <label className="text-xs text-gray-500">학과 공개 여부</label>
+        <Select
+          value={formData.isMajorVisible ? "public" : "private"}
+          onValueChange={(value) =>
+            onInputChange("isMajorVisible", value === "public")
+          }
+        >
+          <SelectTrigger className="w-20 h-7 rounded-lg border-gray-200 bg-white text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="rounded-lg">
+            <SelectItem value="public" className="rounded-md text-xs">
+              공개
+            </SelectItem>
+            <SelectItem value="private" className="rounded-md text-xs">
+              비공개
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       {!isEditingSchool ? (
         <div className="space-y-3">

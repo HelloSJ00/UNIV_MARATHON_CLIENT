@@ -32,6 +32,10 @@ export interface User {
   universityEmail: string;
   runningRecords: RunningRecords;
   universityVerified: boolean;
+  nameVisible: boolean;
+  studentNumberVisible: boolean;
+  majorVisible: boolean;
+  graduationStatus: string;
 }
 
 interface AuthState {

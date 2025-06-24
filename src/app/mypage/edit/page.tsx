@@ -22,10 +22,15 @@ export default function EditProfilePage() {
     name: "",
     birthDate: "",
     gender: "MALE" as "MALE" | "FEMALE",
+    studentNumber: "",
     universityName: "",
     majorName: "",
     universityEmail: "",
     profileImageUrl: "",
+    isNameVisible: true,
+    isStudentNumberVisible: true,
+    isMajorVisible: true,
+    graduationStatus: "",
     isChangeUniversity: false,
   });
 
@@ -93,16 +98,23 @@ export default function EditProfilePage() {
   // 컴포넌트 마운트시 기존 데이터로 폼 초기화
   useEffect(() => {
     if (user) {
+      console.log("[EditProfilePage] User data:", user);
       setFormData({
         name: user.name || "",
         birthDate: user.birthDate || "",
         gender: user.gender || "MALE",
+        studentNumber: user.studentNumber || "",
         universityName: user.universityName || "",
         majorName: user.majorName || "",
         universityEmail: user.universityEmail || "",
         profileImageUrl: user.profileImageUrl || "",
+        isNameVisible: user.nameVisible || true,
+        isStudentNumberVisible: user.studentNumberVisible || true,
+        isMajorVisible: user.majorVisible || true,
+        graduationStatus: user.graduationStatus || "",
         isChangeUniversity: false,
       });
+      console.log("[EditProfilePage] FormData initialized:", formData);
       setSelectedSchool(user.universityName || "");
       setSelectedDepartment(user.majorName || "");
     }
@@ -126,7 +138,10 @@ export default function EditProfilePage() {
     setProfileImageFile(null);
   };
 
-  const handleInputChange = (field: string, value: string | number) => {
+  const handleInputChange = (
+    field: string,
+    value: string | number | boolean
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value || "" }));
   };
 
@@ -185,9 +200,14 @@ export default function EditProfilePage() {
         name: formData.name,
         birthDate: formData.birthDate,
         gender: formData.gender,
+        studentNumber: formData.studentNumber,
         universityName: selectedSchool,
         majorName: selectedDepartment,
         universityEmail: formData.universityEmail,
+        isNameVisible: formData.isNameVisible,
+        isStudentNumberVisible: formData.isStudentNumberVisible,
+        isMajorVisible: formData.isMajorVisible,
+        graduationStatus: formData.graduationStatus,
         profileImageUrl,
       });
       // 서버 응답 콘솔 출력
@@ -197,6 +217,9 @@ export default function EditProfilePage() {
       setUser({
         ...response.data,
         role: response.data.role === "ROLE_ADMIN" ? "ROLE_ADMIN" : "ROLE_USER",
+        nameVisible: formData.isNameVisible,
+        studentNumberVisible: formData.isStudentNumberVisible,
+        majorVisible: formData.isMajorVisible,
         runningRecords: {
           HALF: response.data.runningRecords.HALF
             ? {
@@ -286,6 +309,8 @@ export default function EditProfilePage() {
               handleSchoolChange={handleSchoolChange}
               handleDepartmentChange={handleDepartmentChange}
               user={user}
+              formData={formData}
+              onInputChange={handleInputChange}
             />
             <SaveButton isSaving={isSaving} onSubmit={handleSubmit} />
           </form>

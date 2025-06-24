@@ -15,8 +15,11 @@ interface BasicInfoFieldsProps {
     birthDate: string;
     gender: "MALE" | "FEMALE";
     universityEmail: string;
+    studentNumber: string;
+    isNameVisible: boolean;
+    isStudentNumberVisible: boolean;
   };
-  onInputChange: (field: string, value: string) => void;
+  onInputChange: (field: string, value: string | boolean) => void;
   userEmail: string;
 }
 
@@ -55,6 +58,27 @@ export default function BasicInfoFields({
           className="h-12 rounded-2xl border-gray-200"
           required
         />
+        <div className="flex items-center justify-between">
+          <label className="text-xs text-gray-500">이름 공개 여부</label>
+          <Select
+            value={formData.isNameVisible ? "public" : "private"}
+            onValueChange={(value) =>
+              onInputChange("isNameVisible", value === "public")
+            }
+          >
+            <SelectTrigger className="w-20 h-7 rounded-lg border-gray-200 bg-white text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg">
+              <SelectItem value="public" className="rounded-md text-xs">
+                공개
+              </SelectItem>
+              <SelectItem value="private" className="rounded-md text-xs">
+                비공개
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">생년월일</label>
@@ -103,6 +127,38 @@ export default function BasicInfoFields({
             className="pl-10 h-12 rounded-2xl border-gray-200"
             required
           />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">학번</label>
+        <Input
+          type="text"
+          placeholder="학번을 입력하세요"
+          value={formData.studentNumber}
+          onChange={(e) => onInputChange("studentNumber", e.target.value)}
+          className="h-12 rounded-2xl border-gray-200"
+          required
+        />
+        <div className="flex items-center justify-between">
+          <label className="text-xs text-gray-500">학번 공개 여부</label>
+          <Select
+            value={formData.isStudentNumberVisible ? "public" : "private"}
+            onValueChange={(value) =>
+              onInputChange("isStudentNumberVisible", value === "public")
+            }
+          >
+            <SelectTrigger className="w-20 h-7 rounded-lg border-gray-200 bg-white text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg">
+              <SelectItem value="public" className="rounded-md text-xs">
+                공개
+              </SelectItem>
+              <SelectItem value="private" className="rounded-md text-xs">
+                비공개
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

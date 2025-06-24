@@ -5,10 +5,15 @@ export interface UpdateUserRequest {
   name: string;
   birthDate: string;
   gender: "MALE" | "FEMALE";
+  studentNumber: string;
   universityName: string;
   majorName: string;
   universityEmail: string;
   profileImageUrl: string | null;
+  isNameVisible: boolean;
+  isStudentNumberVisible: boolean;
+  isMajorVisible: boolean;
+  graduationStatus: string;
 }
 
 export interface RunningRecord {
@@ -33,6 +38,10 @@ export interface UpdateUserResponse {
     role: string;
     createdAt: string;
     universityEmail: string;
+    isNameVisible: boolean;
+    isStundentNumberVisible: boolean;
+    isMajorVisible: boolean;
+    graduationStatus: string;
     runningRecords: {
       HALF: RunningRecord | null;
       TEN_KM: RunningRecord | null;
