@@ -31,8 +31,9 @@ interface SchoolInfoFieldsProps {
   user: User;
   formData: {
     isMajorVisible: boolean;
+    graduationStatus: string;
   };
-  onInputChange: (field: string, value: boolean) => void;
+  onInputChange: (field: string, value: boolean | string) => void;
 }
 
 export default function SchoolInfoFields({
@@ -113,6 +114,35 @@ export default function SchoolInfoFields({
             </SelectItem>
             <SelectItem value="private" className="rounded-md text-xs">
               비공개
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">재학 상태</label>
+        <Select
+          value={formData.graduationStatus}
+          onValueChange={(value) => onInputChange("graduationStatus", value)}
+          required
+          disabled={!isEditingSchool}
+        >
+          <SelectTrigger className="h-12 rounded-2xl border-gray-200 bg-white w-full disabled:bg-gray-100 disabled:cursor-not-allowed">
+            <SelectValue
+              placeholder={
+                user?.graduationStatus === "ENROLLED"
+                  ? "재학생"
+                  : user?.graduationStatus === "GRADUATED"
+                  ? "졸업생"
+                  : "재학 상태를 선택하세요"
+              }
+            />
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl">
+            <SelectItem value="ENROLLED" className="rounded-xl">
+              재학생
+            </SelectItem>
+            <SelectItem value="GRADUATED" className="rounded-xl">
+              졸업생
             </SelectItem>
           </SelectContent>
         </Select>
