@@ -81,9 +81,7 @@ export default function HomePage() {
         selectedGender,
         searchQuery || undefined,
         accessToken ?? undefined,
-        selectedGraduationStatus === "ALL"
-          ? undefined
-          : selectedGraduationStatus
+        selectedGraduationStatus
       );
 
       const rankingsList = rankings || [];
@@ -238,12 +236,7 @@ export default function HomePage() {
                       } 내 100명의 랭킹을 확인할 수 있습니다`}
                 </p>
                 <RankingList
-                  rankingsData={rankingsData.map((runner) => ({
-                    ...runner,
-                    isNameVisible: true,
-                    isStudentNumberVisible: true,
-                    isMajorVisible: true,
-                  }))}
+                  rankingsData={rankingsData}
                   openCard={openCard}
                   setOpenCard={setOpenCard}
                   isIntegratedRanking={isIntegratedRanking}

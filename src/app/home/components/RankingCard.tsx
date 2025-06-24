@@ -17,9 +17,9 @@ export interface Runner {
   majorName?: string;
   studentNumber?: string | null;
   profileImageUrl?: string | null;
-  isNameVisible: boolean;
-  isStudentNumberVisible: boolean;
-  isMajorVisible: boolean;
+  nameVisible: boolean;
+  studentNumberVisible: boolean;
+  majorVisible: boolean;
   graduationStatus?: string;
 }
 
@@ -88,10 +88,10 @@ export default function RankingCard({
               <span
                 className="font-semibold text-gray-900 text-base"
                 title={
-                  runner.isNameVisible ? runner.name : `${runner.name?.[0]}**`
+                  runner.nameVisible ? runner.name : `${runner.name?.[0]}**`
                 }
               >
-                {runner.isNameVisible ? runner.name : `${runner.name?.[0]}**`}
+                {runner.nameVisible ? runner.name : `${runner.name?.[0]}**`}
               </span>
               <span
                 className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
@@ -178,12 +178,12 @@ export default function RankingCard({
                   <p
                     className="text-sm font-medium text-gray-800 truncate"
                     title={
-                      runner.isMajorVisible
+                      runner.majorVisible
                         ? runner.majorName || "정보 없음"
                         : "비공개"
                     }
                   >
-                    {runner.isMajorVisible
+                    {runner.majorVisible
                       ? runner.majorName || "정보 없음"
                       : "비공개"}
                   </p>
@@ -191,7 +191,7 @@ export default function RankingCard({
                 <div className="min-w-0">
                   <p className="text-xs text-gray-500 font-medium mb-1">학번</p>
                   <p className="text-sm font-medium text-gray-800">
-                    {runner.isStudentNumberVisible
+                    {runner.studentNumberVisible
                       ? runner.studentNumber
                         ? `${runner.studentNumber.substring(2, 4)}학번`
                         : "정보 없음"

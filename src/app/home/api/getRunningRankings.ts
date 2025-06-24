@@ -13,6 +13,10 @@ export interface RunningRank {
   majorName: string;
   studentNumber: string | null;
   profileImageUrl: string | null;
+  nameVisible: boolean;
+  studentNumberVisible: boolean;
+  majorVisible: boolean;
+  graduationStatus?: string;
 }
 
 export interface MyRecord extends RunningRank {
@@ -31,31 +35,39 @@ export async function getRunningRankings(
   gender: "MALE" | "FEMALE" | "ALL",
   universityName?: string,
   accessToken?: string,
-  graduationStatus?: "ENROLLED" | "GRADUATED"
+  graduationStatus?: "ENROLLED" | "GRADUATED" | "ALL"
 ): Promise<RunningRankResponse> {
-  const params = new URLSearchParams({
+  console.log("[API 요청 파라미터]", {
     runningType,
     gender,
-    ...(universityName && { universityName }),
-    ...(graduationStatus && { graduationStatus }),
+    universityName,
+    graduationStatus,
   });
+
+  const params: Record<string, string> = {
+    runningType,
+    gender,
+  };
+  if (universityName) params.universityName = universityName;
+  if (graduationStatus) params.graduationStatus = graduationStatus;
+
+  const searchParams = new URLSearchParams(params);
 
   const headers: { [key: string]: string } = {};
   if (accessToken) {
     headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
-  console.log("API 요청 정보:", {
+  console.log("[API 요청 URL과 설정]", {
     url: `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking`,
-    params: Object.fromEntries(params),
+    params: Object.fromEntries(searchParams),
     headers,
   });
 
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking?${params}`,
+    `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/runningRecord/school-ranking?${searchParams}`,
     { headers }
   );
-  console.log("API 응답:", response.data);
-  console.log("반환될 데이터:", response.data.data);
+  console.log("[API 응답]", response.data);
   return response.data.data;
 }
