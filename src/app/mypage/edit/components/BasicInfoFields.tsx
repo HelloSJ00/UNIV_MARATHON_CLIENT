@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { Mail, Calendar } from "lucide-react";
+import { Mail } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 interface BasicInfoFieldsProps {
   formData: {
@@ -28,6 +28,36 @@ export default function BasicInfoFields({
   onInputChange,
   userEmail,
 }: BasicInfoFieldsProps) {
+  // 생년월일 드롭다운용 상태
+  const [birthYear, setBirthYear] = useState<string | null>(null);
+  const [birthMonth, setBirthMonth] = useState<string | null>(null);
+  const [birthDay, setBirthDay] = useState<string | null>(null);
+
+  // formData.birthDate에서 년/월/일 분리하여 초기값 세팅
+  useEffect(() => {
+    if (formData.birthDate) {
+      const [y, m, d] = formData.birthDate.split("-");
+      setBirthYear(y);
+      setBirthMonth(m);
+      setBirthDay(d);
+    }
+  }, [formData.birthDate]);
+
+  // 년/월/일이 바뀔 때마다 formData.birthDate 업데이트
+  useEffect(() => {
+    if (birthYear && birthMonth && birthDay) {
+      const month = birthMonth.padStart(2, "0");
+      const day = birthDay.padStart(2, "0");
+      onInputChange("birthDate", `${birthYear}-${month}-${day}`);
+    }
+  }, [birthYear, birthMonth, birthDay]);
+
+  // 년/월/일 옵션 생성
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
   return (
     <div className="space-y-4">
       {/* 이메일 (수정 불가) */}
@@ -81,16 +111,91 @@ export default function BasicInfoFields({
         </div>
       </div>
       <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">학번</label>
+        <Input
+          type="text"
+          placeholder="학번을 입력하세요"
+          value={formData.studentNumber}
+          onChange={(e) => onInputChange("studentNumber", e.target.value)}
+          className="h-12 rounded-2xl border-gray-200"
+          required
+        />
+        <div className="flex items-center justify-between">
+          <label className="text-xs text-gray-500">학번 공개 여부</label>
+          <Select
+            value={formData.isStudentNumberVisible ? "public" : "private"}
+            onValueChange={(value) =>
+              onInputChange("isStudentNumberVisible", value === "public")
+            }
+          >
+            <SelectTrigger className="w-20 h-7 rounded-lg border-gray-200 bg-white text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg">
+              <SelectItem value="public" className="rounded-md text-xs">
+                공개
+              </SelectItem>
+              <SelectItem value="private" className="rounded-md text-xs">
+                비공개
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">생년월일</label>
-        <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <Input
-            type="date"
-            value={formData.birthDate}
-            onChange={(e) => onInputChange("birthDate", e.target.value)}
-            className="pl-10 h-12 rounded-2xl border-gray-200"
-            required
-          />
+        <div className="flex gap-2">
+          {/* 년 */}
+          <Select value={birthYear ?? undefined} onValueChange={setBirthYear}>
+            <SelectTrigger className="h-12 rounded-2xl border-gray-200">
+              <SelectValue placeholder="년" />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              {years.map((year) => (
+                <SelectItem
+                  key={year}
+                  value={String(year)}
+                  className="rounded-xl"
+                >
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* 월 */}
+          <Select value={birthMonth ?? undefined} onValueChange={setBirthMonth}>
+            <SelectTrigger className="h-12 rounded-2xl border-gray-200">
+              <SelectValue placeholder="월" />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              {months.map((month) => (
+                <SelectItem
+                  key={month}
+                  value={String(month)}
+                  className="rounded-xl"
+                >
+                  {month}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* 일 */}
+          <Select value={birthDay ?? undefined} onValueChange={setBirthDay}>
+            <SelectTrigger className="h-12 rounded-2xl border-gray-200">
+              <SelectValue placeholder="일" />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              {days.map((day) => (
+                <SelectItem
+                  key={day}
+                  value={String(day)}
+                  className="rounded-xl"
+                >
+                  {day}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <div className="space-y-2">
@@ -127,38 +232,6 @@ export default function BasicInfoFields({
             className="pl-10 h-12 rounded-2xl border-gray-200"
             required
           />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">학번</label>
-        <Input
-          type="text"
-          placeholder="학번을 입력하세요"
-          value={formData.studentNumber}
-          onChange={(e) => onInputChange("studentNumber", e.target.value)}
-          className="h-12 rounded-2xl border-gray-200"
-          required
-        />
-        <div className="flex items-center justify-between">
-          <label className="text-xs text-gray-500">학번 공개 여부</label>
-          <Select
-            value={formData.isStudentNumberVisible ? "public" : "private"}
-            onValueChange={(value) =>
-              onInputChange("isStudentNumberVisible", value === "public")
-            }
-          >
-            <SelectTrigger className="w-20 h-7 rounded-lg border-gray-200 bg-white text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="rounded-lg">
-              <SelectItem value="public" className="rounded-md text-xs">
-                공개
-              </SelectItem>
-              <SelectItem value="private" className="rounded-md text-xs">
-                비공개
-              </SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
     </div>
