@@ -1,18 +1,5 @@
 import React from "react";
-import RankingCard from "./RankingCard";
-
-interface Runner {
-  userId: number;
-  name: string;
-  gender: "MALE" | "FEMALE";
-  universityName: string;
-  majorName?: string;
-  studentNumber?: string | null;
-  profileImageUrl?: string | null;
-  type: "TEN_KM" | "HALF" | "FULL";
-  rank: number;
-  recordTimeInSeconds: number;
-}
+import RankingCard, { type Runner } from "./RankingCard";
 
 interface RankingListProps {
   rankingsData: Runner[];

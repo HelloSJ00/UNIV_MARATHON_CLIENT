@@ -7,24 +7,12 @@ import {
 } from "@/components/ui/select";
 import React from "react";
 import { UseFormSetValue, UseFormRegister } from "react-hook-form";
-
-// SignupFormData 타입을 직접 정의
-interface SignupFormData {
-  email: string;
-  name: string;
-  password: string;
-  birthDate: string;
-  gender: "MALE" | "FEMALE";
-  studentId: string;
-  university: string;
-  major: string;
-  profileImage: FileList;
-}
+import { SignupForm } from "../api/reqSignup";
 
 interface StudentIdSelectProps {
-  register: UseFormRegister<SignupFormData & { passwordConfirm: string }>;
+  register: UseFormRegister<SignupForm & { passwordConfirm: string }>;
   errors: Record<string, { message?: string }>;
-  setValue: UseFormSetValue<SignupFormData & { passwordConfirm: string }>;
+  setValue: UseFormSetValue<SignupForm & { passwordConfirm: string }>;
 }
 
 function StudentIdSelect({ register, errors, setValue }: StudentIdSelectProps) {
@@ -32,9 +20,7 @@ function StudentIdSelect({ register, errors, setValue }: StudentIdSelectProps) {
     <div className="space-y-2">
       <label className="text-sm font-medium text-gray-700">학번</label>
       <Select
-        onValueChange={(value) =>
-          setValue("studentId" as keyof SignupFormData, value)
-        }
+        onValueChange={(value) => setValue("studentNumber", value)}
         required
       >
         <SelectTrigger className="h-12 rounded-2xl border-gray-200 w-full">
@@ -46,16 +32,39 @@ function StudentIdSelect({ register, errors, setValue }: StudentIdSelectProps) {
               key={year}
               value={year.toString()}
               className="rounded-xl"
-              {...register("studentId", { required: "학번을 선택하세요" })}
+              {...register("studentNumber", { required: "학번을 선택하세요" })}
             >
               {year}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      {errors.studentId && (
-        <p className="text-red-500 text-sm mt-1">{errors.studentId.message}</p>
+      {errors.studentNumber && (
+        <p className="text-red-500 text-sm mt-1">
+          {errors.studentNumber.message}
+        </p>
       )}
+      <div className="flex items-center justify-between">
+        <label className="text-xs text-gray-500">학번 공개 여부</label>
+        <Select
+          defaultValue="public"
+          onValueChange={(value) =>
+            setValue("isStudentNumberVisible", value === "public")
+          }
+        >
+          <SelectTrigger className="w-20 h-7 rounded-lg border-gray-200 bg-white text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="rounded-lg">
+            <SelectItem value="public" className="rounded-md text-xs">
+              공개
+            </SelectItem>
+            <SelectItem value="private" className="rounded-md text-xs">
+              비공개
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

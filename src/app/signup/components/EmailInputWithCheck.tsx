@@ -3,22 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Mail, CheckCircle, X, Loader2 } from "lucide-react";
 import React from "react";
 import { UseFormRegister } from "react-hook-form";
+import { SignupForm } from "../api/reqSignup";
 
-interface SignupFormData {
-  email: string;
-  name: string;
-  password: string;
-  birthDate: string;
-  gender: "MALE" | "FEMALE";
-  studentId: string;
-  university: string;
-  major: string;
-  profileImage: FileList;
-}
 interface EmailInputWithCheckProps {
   email: string;
   setEmail: (email: string) => void;
-  register: UseFormRegister<SignupFormData & { passwordConfirm: string }>;
+  register: UseFormRegister<SignupForm & { passwordConfirm: string }>;
   errors: Record<string, { message?: string }>;
   handleEmailCheck: () => void;
   isCheckingEmail: boolean;

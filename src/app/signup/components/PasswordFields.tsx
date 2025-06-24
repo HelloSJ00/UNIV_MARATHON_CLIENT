@@ -2,22 +2,10 @@ import { Input } from "@/components/ui/input";
 import { Lock } from "lucide-react";
 import React from "react";
 import { UseFormRegister } from "react-hook-form";
-
-// SignupFormData 타입을 직접 정의
-interface SignupFormData {
-  email: string;
-  name: string;
-  password: string;
-  birthDate: string;
-  gender: "MALE" | "FEMALE";
-  studentId: string;
-  university: string;
-  major: string;
-  profileImage: FileList;
-}
+import { SignupForm } from "../api/reqSignup";
 
 interface PasswordFieldsProps {
-  register: UseFormRegister<SignupFormData & { passwordConfirm: string }>;
+  register: UseFormRegister<SignupForm & { passwordConfirm: string }>;
   errors: Record<string, { message?: string }>;
   password: string;
 }

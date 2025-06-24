@@ -94,6 +94,14 @@ export default function LoginForm({
             회원가입
           </Link>
         </p>
+        <p className="text-gray-600 mt-2">
+          <Link
+            href="/login/updatePassword"
+            className="text-gray-500 hover:text-black hover:underline text-sm"
+          >
+            비밀번호를 잊으셨나요?
+          </Link>
+        </p>
       </div>
     </form>
   );

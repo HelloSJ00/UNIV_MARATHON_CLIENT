@@ -1,15 +1,19 @@
 import axios from "@/lib/axios";
 
-interface SignupRequest {
+export interface SignupForm {
   email: string;
   password: string;
   name: string;
   birthDate: string;
   gender: "MALE" | "FEMALE";
   university: string;
-  studentId: string;
+  studentNumber: string;
   major: string;
   profileImage: string | null;
+  isNameVisible: boolean;
+  isStudentNumberVisible: boolean;
+  isMajorVisible: boolean;
+  graduationStatus: string;
 }
 
 interface SignupResponse {
@@ -19,7 +23,7 @@ interface SignupResponse {
   data: unknown;
 }
 
-export const signup = async (data: SignupRequest) => {
+export const signup = async (data: SignupForm) => {
   try {
     const response = await axios.post<SignupResponse>(
       `${process.env.NEXT_PUBLIC_BASE_SERVER_API_URL}/auth/signup`,
