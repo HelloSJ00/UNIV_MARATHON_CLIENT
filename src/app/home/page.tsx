@@ -213,10 +213,10 @@ export default function HomePage() {
                 />
                 <p className="text-sm text-gray-600 mb-6">
                   {isIntegratedRanking
-                    ? `전국 ${rankingsData.length}명의 랭킹을 확인할 수 있습니다`
-                    : `${selectedSchool || searchQuery} 내 ${
-                        rankingsData.length
-                      }명의 랭킹을 확인할 수 있습니다`}
+                    ? `전국 상위 100명의 랭킹을 확인할 수 있습니다`
+                    : `${
+                        selectedSchool || searchQuery
+                      } 내 100명의 랭킹을 확인할 수 있습니다`}
                 </p>
                 <RankingList
                   rankingsData={rankingsData}
