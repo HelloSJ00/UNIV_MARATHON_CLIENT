@@ -108,9 +108,9 @@ export default function EditProfilePage() {
         majorName: user.majorName || "",
         universityEmail: user.universityEmail || "",
         profileImageUrl: user.profileImageUrl || "",
-        isNameVisible: user.nameVisible || true,
-        isStudentNumberVisible: user.studentNumberVisible || true,
-        isMajorVisible: user.majorVisible || true,
+        isNameVisible: user.nameVisible,
+        isStudentNumberVisible: user.studentNumberVisible,
+        isMajorVisible: user.majorVisible,
         graduationStatus: user.graduationStatus || "",
         isChangeUniversity: false,
       });
@@ -163,6 +163,16 @@ export default function EditProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 제출 전 각 필드 값 콘솔 출력
+    console.log("제출 전 필드 값:", {
+      name: formData.name,
+      birthDate: formData.birthDate,
+      gender: formData.gender,
+      selectedSchool,
+      selectedDepartment,
+      universityEmail: formData.universityEmail,
+    });
+
     if (
       !formData.name ||
       !formData.birthDate ||
@@ -186,14 +196,15 @@ export default function EditProfilePage() {
         profileImageUrl = url;
       }
 
+      // graduationStatus가 비어 있으면 기존 user 값 사용
+      const graduationStatusToSubmit =
+        formData.graduationStatus || user?.graduationStatus || "";
+
       // 서버에 유저 정보 업데이트 요청 전 콘솔 출력
       console.log("폼 전송 데이터:", {
-        name: formData.name,
-        birthDate: formData.birthDate,
-        gender: formData.gender,
+        ...formData,
         universityName: selectedSchool,
         majorName: selectedDepartment,
-        universityEmail: formData.universityEmail,
         profileImageUrl,
       });
       const response = await updateUser({
@@ -207,7 +218,7 @@ export default function EditProfilePage() {
         isNameVisible: formData.isNameVisible,
         isStudentNumberVisible: formData.isStudentNumberVisible,
         isMajorVisible: formData.isMajorVisible,
-        graduationStatus: formData.graduationStatus,
+        graduationStatus: graduationStatusToSubmit,
         profileImageUrl,
       });
       // 서버 응답 콘솔 출력
