@@ -1,5 +1,4 @@
 import { Input } from "@/components/ui/input";
-import { Calendar } from "lucide-react";
 import { UseFormRegister, UseFormSetValue } from "react-hook-form";
 import {
   Select,
@@ -8,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React from "react";
+import React, { useState, useEffect } from "react";
 interface SignupFormData {
   email: string;
   name: string;
@@ -33,6 +32,27 @@ const BasicInfoFields = ({
   errors,
   setValue,
 }: BasicInfoFieldsProps) => {
+  const [birthYear, setBirthYear] = useState<string | null>(null);
+  const [birthMonth, setBirthMonth] = useState<string | null>(null);
+  const [birthDay, setBirthDay] = useState<string | null>(null);
+
+  // 생년월일이 변경될 때마다 react-hook-form의 'birthDate' 필드 값을 업데이트
+  useEffect(() => {
+    if (birthYear && birthMonth && birthDay) {
+      const month = birthMonth.padStart(2, "0");
+      const day = birthDay.padStart(2, "0");
+      setValue("birthDate", `${birthYear}-${month}-${day}`, {
+        shouldValidate: true,
+      });
+    }
+  }, [birthYear, birthMonth, birthDay, setValue]);
+
+  // 년/월/일 옵션 생성
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
   return (
     <>
       <div className="space-y-2">
@@ -49,26 +69,64 @@ const BasicInfoFields = ({
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">생년월일</label>
-        <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 text-gray-400 w-full" />
-          <Input
-            {...register("birthDate", {
-              required: "생년월일을 입력해주세요",
-              pattern: {
-                value: /^\d{4}-\d{2}-\d{2}$/,
-                message: "올바른 생년월일 형식이 아닙니다 (YYYY-MM-DD)",
-              },
-            })}
-            type="date"
-            max={new Date().toISOString().split("T")[0]}
-            className="pl-10 h-12 rounded-2xl border-gray-200"
-          />
-          {errors.birthDate && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.birthDate.message}
-            </p>
-          )}
+        <div className="flex gap-2">
+          {/* 년 */}
+          <Select onValueChange={setBirthYear}>
+            <SelectTrigger className="h-12 rounded-2xl border-gray-200">
+              <SelectValue placeholder="년" />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              {years.map((year) => (
+                <SelectItem
+                  key={year}
+                  value={String(year)}
+                  className="rounded-xl"
+                >
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* 월 */}
+          <Select onValueChange={setBirthMonth}>
+            <SelectTrigger className="h-12 rounded-2xl border-gray-200">
+              <SelectValue placeholder="월" />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              {months.map((month) => (
+                <SelectItem
+                  key={month}
+                  value={String(month)}
+                  className="rounded-xl"
+                >
+                  {month}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* 일 */}
+          <Select onValueChange={setBirthDay}>
+            <SelectTrigger className="h-12 rounded-2xl border-gray-200">
+              <SelectValue placeholder="일" />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              {days.map((day) => (
+                <SelectItem
+                  key={day}
+                  value={String(day)}
+                  className="rounded-xl"
+                >
+                  {day}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+        {errors.birthDate && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.birthDate.message}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">성별</label>
