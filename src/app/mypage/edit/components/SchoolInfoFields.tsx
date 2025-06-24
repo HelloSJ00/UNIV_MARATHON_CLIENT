@@ -121,7 +121,7 @@ export default function SchoolInfoFields({
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">재학 상태</label>
         <Select
-          value={formData.graduationStatus}
+          value={formData.graduationStatus || user?.graduationStatus || ""}
           onValueChange={(value) => onInputChange("graduationStatus", value)}
           required
           disabled={!isEditingSchool}

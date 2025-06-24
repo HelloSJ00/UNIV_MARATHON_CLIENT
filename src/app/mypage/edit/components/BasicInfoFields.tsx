@@ -12,7 +12,6 @@ import React from "react";
 interface BasicInfoFieldsProps {
   formData: {
     name: string;
-    birthDate: string;
     gender: "MALE" | "FEMALE";
     universityEmail: string;
     studentNumber: string;

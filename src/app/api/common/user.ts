@@ -3,7 +3,6 @@ import axios from "@/lib/axios";
 
 export interface UpdateUserRequest {
   name: string;
-  birthDate: string;
   gender: "MALE" | "FEMALE";
   studentNumber: string;
   universityName: string;

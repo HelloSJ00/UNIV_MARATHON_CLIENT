@@ -20,7 +20,6 @@ export default function EditProfilePage() {
   // 수정할 데이터 상태
   const [formData, setFormData] = useState({
     name: "",
-    birthDate: "",
     gender: "MALE" as "MALE" | "FEMALE",
     studentNumber: "",
     universityName: "",
@@ -101,7 +100,6 @@ export default function EditProfilePage() {
       console.log("[EditProfilePage] User data:", user);
       setFormData({
         name: user.name || "",
-        birthDate: user.birthDate || "",
         gender: user.gender || "MALE",
         studentNumber: user.studentNumber || "",
         universityName: user.universityName || "",
@@ -166,7 +164,6 @@ export default function EditProfilePage() {
     // 제출 전 각 필드 값 콘솔 출력
     console.log("제출 전 필드 값:", {
       name: formData.name,
-      birthDate: formData.birthDate,
       gender: formData.gender,
       selectedSchool,
       selectedDepartment,
@@ -175,7 +172,6 @@ export default function EditProfilePage() {
 
     if (
       !formData.name ||
-      !formData.birthDate ||
       !formData.gender ||
       !selectedSchool ||
       !selectedDepartment ||
@@ -209,7 +205,6 @@ export default function EditProfilePage() {
       });
       const response = await updateUser({
         name: formData.name,
-        birthDate: formData.birthDate,
         gender: formData.gender,
         studentNumber: formData.studentNumber,
         universityName: selectedSchool,
