@@ -10,6 +10,34 @@ import { GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { User } from "@/store/auth";
+import { FixedSizeList as List, ListChildComponentProps } from "react-window";
+
+interface ItemData {
+  items: string[];
+  onItemSelect: (item: string) => void;
+}
+
+const VirtualizedSelectItem = ({
+  index,
+  style,
+  data,
+}: ListChildComponentProps<ItemData>) => {
+  const { items, onItemSelect } = data;
+  const item = items[index];
+
+  return (
+    <div style={style}>
+      <SelectItem
+        key={item}
+        value={item}
+        className="rounded-xl"
+        onSelect={() => onItemSelect(item)}
+      >
+        {item}
+      </SelectItem>
+    </div>
+  );
+};
 
 interface SchoolInfoFieldsProps {
   isEditingSchool: boolean;
@@ -189,16 +217,20 @@ export default function SchoolInfoFields({
                   </div>
                 ) : (
                   <>
-                    {filteredSchools.map((school) => (
-                      <SelectItem
-                        key={school}
-                        value={school}
-                        className="rounded-xl"
+                    {filteredSchools.length > 0 ? (
+                      <List
+                        height={200}
+                        itemCount={filteredSchools.length}
+                        itemSize={40}
+                        width="100%"
+                        itemData={{
+                          items: filteredSchools,
+                          onItemSelect: handleSchoolChange,
+                        }}
                       >
-                        {school}
-                      </SelectItem>
-                    ))}
-                    {filteredSchools.length === 0 && (
+                        {VirtualizedSelectItem}
+                      </List>
+                    ) : (
                       <div className="p-2 text-sm text-gray-500 text-center">
                         검색 결과가 없습니다
                       </div>
@@ -240,22 +272,27 @@ export default function SchoolInfoFields({
                     />
                   </div>
                 )}
-                {filteredDepartments.map((department) => (
-                  <SelectItem
-                    key={department}
-                    value={department}
-                    className="rounded-xl"
+                {filteredDepartments.length > 0 ? (
+                  <List
+                    height={200}
+                    itemCount={filteredDepartments.length}
+                    itemSize={40}
+                    width="100%"
+                    itemData={{
+                      items: filteredDepartments,
+                      onItemSelect: handleDepartmentChange,
+                    }}
                   >
-                    {department}
-                  </SelectItem>
-                ))}
-                {!isLoadingDepartments &&
-                  filteredDepartments.length === 0 &&
+                    {VirtualizedSelectItem}
+                  </List>
+                ) : (
+                  !isLoadingDepartments &&
                   departments.length > 0 && (
                     <div className="p-2 text-sm text-gray-500 text-center">
                       검색 결과가 없습니다
                     </div>
-                  )}
+                  )
+                )}
               </SelectContent>
             </Select>
           </div>
