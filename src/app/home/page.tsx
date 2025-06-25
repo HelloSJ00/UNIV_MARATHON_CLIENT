@@ -503,54 +503,64 @@ export default function HomePage() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {universityRankings.map((item, index) => (
-                      <div
-                        key={item.universityName}
-                        className={`flex items-center p-4 rounded-2xl transition-colors ${
-                          index === 0
-                            ? "bg-yellow-50 border border-yellow-200"
-                            : index === 1
-                            ? "bg-gray-50 border border-gray-200"
-                            : index === 2
-                            ? "bg-orange-50 border border-orange-200"
-                            : "bg-gray-50 hover:bg-gray-100"
-                        }`}
-                      >
+                    {universityRankings.map((item, index) => {
+                      console.log(
+                        "universityImage:",
+                        item.universityImage,
+                        "for",
+                        item.universityName
+                      );
+                      return (
                         <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-4 ${
+                          key={item.universityName}
+                          className={`flex items-center p-4 rounded-2xl transition-colors ${
                             index === 0
-                              ? "bg-yellow-500 text-white"
+                              ? "bg-yellow-50 border border-yellow-200"
                               : index === 1
-                              ? "bg-gray-400 text-white"
+                              ? "bg-gray-50 border border-gray-200"
                               : index === 2
-                              ? "bg-orange-500 text-white"
-                              : "bg-gray-200 text-gray-600"
+                              ? "bg-orange-50 border border-orange-200"
+                              : "bg-gray-50 hover:bg-gray-100"
                           }`}
                         >
-                          {item.ranking}
+                          <div
+                            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-4 ${
+                              index === 0
+                                ? "bg-yellow-500 text-white"
+                                : index === 1
+                                ? "bg-gray-400 text-white"
+                                : index === 2
+                                ? "bg-orange-500 text-white"
+                                : "bg-gray-200 text-gray-600"
+                            }`}
+                          >
+                            {item.ranking}
+                          </div>
+                          <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-gray-100 flex-shrink-0">
+                            <Image
+                              src={item.universityImage || "/placeholder.svg"}
+                              alt={`${item.universityName} 로고`}
+                              width={32}
+                              height={32}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <span className="font-medium">
+                              {item.universityName}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-bold text-lg">
+                              {item.finisherCount}
+                            </span>
+                            <span className="text-sm text-gray-500 ml-1">
+                              명
+                            </span>
+                          </div>
                         </div>
-                        <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-gray-100 flex-shrink-0">
-                          <Image
-                            src={item.universityImage || "/placeholder.svg"}
-                            alt={`${item.universityName} 로고`}
-                            width={32}
-                            height={32}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <span className="font-medium">
-                            {item.universityName}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <span className="font-bold text-lg">
-                            {item.finisherCount}
-                          </span>
-                          <span className="text-sm text-gray-500 ml-1">명</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

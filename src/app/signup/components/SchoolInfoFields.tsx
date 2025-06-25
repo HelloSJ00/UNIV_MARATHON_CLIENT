@@ -10,6 +10,7 @@ import { GraduationCap } from "lucide-react";
 import React from "react";
 import { UseFormSetValue } from "react-hook-form";
 import { SignupForm } from "../api/reqSignup";
+import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 
 interface SchoolInfoFieldsProps {
   selectedUniversity: string;
@@ -28,6 +29,39 @@ interface SchoolInfoFieldsProps {
   setMajorSearchQuery: (value: string) => void;
   isMajorVisible: boolean;
 }
+
+interface ItemData {
+  items: string[];
+  onSelect: (value: string) => void;
+  setValue: UseFormSetValue<SignupForm & { passwordConfirm: string }>;
+  fieldName: "university" | "major";
+}
+
+// 가상화된 리스트 항목을 렌더링하는 컴포넌트
+const VirtualizedSelectItem = ({
+  index,
+  style,
+  data,
+}: ListChildComponentProps<ItemData>) => {
+  const { items, onSelect, setValue, fieldName } = data;
+  const item = items[index];
+
+  return (
+    <div style={style}>
+      <SelectItem
+        key={item}
+        value={item}
+        className="rounded-xl"
+        onSelect={() => {
+          onSelect(item);
+          setValue(fieldName, item);
+        }}
+      >
+        {item}
+      </SelectItem>
+    </div>
+  );
+};
 
 const SchoolInfoFields = ({
   selectedUniversity,
@@ -88,16 +122,22 @@ const SchoolInfoFields = ({
                 className="mb-2 rounded-xl border-gray-200"
               />
             </div>
-            {filteredUniversities.map((university) => (
-              <SelectItem
-                key={university}
-                value={university}
-                className="rounded-xl"
+            {filteredUniversities.length > 0 ? (
+              <List
+                height={200}
+                itemCount={filteredUniversities.length}
+                itemSize={40}
+                width="100%"
+                itemData={{
+                  items: filteredUniversities,
+                  onSelect: setSelectedUniversity,
+                  setValue: setValue,
+                  fieldName: "university",
+                }}
               >
-                {university}
-              </SelectItem>
-            ))}
-            {filteredUniversities.length === 0 && (
+                {VirtualizedSelectItem}
+              </List>
+            ) : (
               <div className="p-2 text-sm text-gray-500 text-center">
                 검색 결과가 없습니다
               </div>
@@ -143,18 +183,26 @@ const SchoolInfoFields = ({
                 />
               </div>
             )}
-            {filteredMajors.map((major) => (
-              <SelectItem key={major} value={major} className="rounded-xl">
-                {major}
-              </SelectItem>
-            ))}
-            {!isLoadingMajors &&
-              filteredMajors.length === 0 &&
-              majors.length > 0 && (
-                <div className="p-2 text-sm text-gray-500 text-center">
-                  검색 결과가 없습니다
-                </div>
-              )}
+            {filteredMajors.length > 0 ? (
+              <List
+                height={200}
+                itemCount={filteredMajors.length}
+                itemSize={40}
+                width="100%"
+                itemData={{
+                  items: filteredMajors,
+                  onSelect: setSelectedMajor,
+                  setValue: setValue,
+                  fieldName: "major",
+                }}
+              >
+                {VirtualizedSelectItem}
+              </List>
+            ) : !isLoadingMajors && majors.length > 0 ? (
+              <div className="p-2 text-sm text-gray-500 text-center">
+                검색 결과가 없습니다
+              </div>
+            ) : null}
           </SelectContent>
         </Select>
         {errors.major && (
