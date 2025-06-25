@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Search, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import React from "react";
+import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 
 interface FilterSectionProps {
   isFilterExpanded: boolean;
@@ -46,6 +47,31 @@ const graduationStatuses = [
   { value: "ENROLLED", label: "재학생" },
   { value: "GRADUATED", label: "졸업생" },
 ];
+
+// 가상화 리스트 아이템
+const VirtualizedSelectItem = ({
+  index,
+  style,
+  data,
+}: ListChildComponentProps<{
+  items: string[];
+  onSelect: (item: string) => void;
+}>) => {
+  const { items, onSelect } = data;
+  const item = items[index];
+  return (
+    <div style={style}>
+      <SelectItem
+        key={item}
+        value={item}
+        className="rounded-xl"
+        onSelect={() => onSelect(item)}
+      >
+        {item}
+      </SelectItem>
+    </div>
+  );
+};
 
 export default function FilterSection({
   isFilterExpanded,
@@ -168,23 +194,26 @@ export default function FilterSection({
                   <div className="p-2 text-sm text-gray-500 text-center">
                     학교 목록을 불러오는 중...
                   </div>
+                ) : filteredSchools.length > 0 ? (
+                  <List
+                    height={200}
+                    itemCount={filteredSchools.length}
+                    itemSize={40}
+                    width="100%"
+                    itemData={{
+                      items: filteredSchools,
+                      onSelect: (school: string) => {
+                        setSelectedSchool(school);
+                        setSearchQuery(school);
+                      },
+                    }}
+                  >
+                    {VirtualizedSelectItem}
+                  </List>
                 ) : (
-                  <>
-                    {filteredSchools.map((school) => (
-                      <SelectItem
-                        key={school}
-                        value={school}
-                        className="rounded-xl"
-                      >
-                        {school}
-                      </SelectItem>
-                    ))}
-                    {filteredSchools.length === 0 && (
-                      <div className="p-2 text-sm text-gray-500 text-center">
-                        검색 결과가 없습니다
-                      </div>
-                    )}
-                  </>
+                  <div className="p-2 text-sm text-gray-500 text-center">
+                    검색 결과가 없습니다
+                  </div>
                 )}
               </SelectContent>
             </Select>
