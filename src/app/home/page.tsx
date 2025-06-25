@@ -286,7 +286,7 @@ export default function HomePage() {
                     )}
                   </div>
                 </div>
-
+                {/* 안내문구 */}
                 {isLoadingRankings ? (
                   <div className="text-center py-12">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-gray-400" />
@@ -466,14 +466,32 @@ export default function HomePage() {
               <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Trophy className="w-5 h-5 text-blue-500" />
-                  학교별 완주자수 랭킹 (
-                  {selectedEvent === "TEN_KM"
-                    ? "10km"
-                    : selectedEvent === "HALF"
-                    ? "하프마라톤"
-                    : "풀마라톤"}
-                  )
+                  학교별 완주자수 랭킹
+                  <span className="px-2 py-1 bg-black text-white rounded-full text-xs font-medium">
+                    {selectedEvent === "TEN_KM"
+                      ? "10km"
+                      : selectedEvent === "HALF"
+                      ? "하프마라톤"
+                      : "풀마라톤"}
+                  </span>
                 </h2>
+                {/* 검색 조건 표시 */}
+                <div className="mb-4 p-3 bg-white rounded-2xl border border-gray-200">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
+                    <span>검색 조건:</span>
+                    <span className="px-2 py-1 bg-black text-white rounded-full text-xs font-medium">
+                      {selectedEvent === "TEN_KM"
+                        ? "10km"
+                        : selectedEvent === "HALF"
+                        ? "하프마라톤"
+                        : "풀마라톤"}
+                    </span>
+                  </div>
+                </div>
+                {/* 안내문구는 학교랭킹에만 */}
+                <p className="text-sm text-gray-600 mb-6">
+                  전국 상위 30개의 학교 랭킹을 확인할 수 있습니다
+                </p>
                 {isLoadingUniversityRankings ? (
                   <div className="flex justify-center items-center h-24">
                     <Loader2 className="animate-spin w-6 h-6 text-gray-400" />
