@@ -35,7 +35,6 @@ interface FilterSectionProps {
   setSelectedGraduationStatus: (v: "ENROLLED" | "GRADUATED" | "ALL") => void;
 }
 
-const events = ["TEN_KM", "HALF", "FULL"];
 const genders = [
   { value: "ALL", label: "전체" },
   { value: "MALE", label: "남성" },
@@ -85,10 +84,12 @@ export default function FilterSection({
   };
 
   return (
-    <div className="bg-gray-50 rounded-3xl overflow-hidden">
+    <div className="bg-gray-50 rounded-3xl overflow-hidden border border-gray-200 shadow-sm transition-all">
       {/* Filter Header */}
       <div
-        className="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-100 transition-colors"
+        className={`flex items-center justify-between cursor-pointer select-none transition-all ${
+          isFilterExpanded ? "mb-4 p-6" : "p-4"
+        }`}
         onClick={() => setIsFilterExpanded(!isFilterExpanded)}
       >
         <div className="flex items-center gap-2 text-lg font-medium">
@@ -211,8 +212,8 @@ export default function FilterSection({
             </div>
           </div>
           {/* Event Selection */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               종목 선택
             </label>
             <Select
@@ -222,14 +223,18 @@ export default function FilterSection({
               }
             >
               <SelectTrigger className="w-full h-12 rounded-2xl border-gray-200 bg-white">
-                <SelectValue placeholder="종목을 선택하세요" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-2xl">
-                {events.map((event) => (
-                  <SelectItem key={event} value={event} className="rounded-xl">
-                    {event}
-                  </SelectItem>
-                ))}
+                <SelectItem value="TEN_KM" className="rounded-xl">
+                  10km
+                </SelectItem>
+                <SelectItem value="HALF" className="rounded-xl">
+                  하프마라톤
+                </SelectItem>
+                <SelectItem value="FULL" className="rounded-xl">
+                  풀마라톤
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
