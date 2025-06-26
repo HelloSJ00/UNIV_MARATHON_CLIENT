@@ -12,7 +12,6 @@ interface MyRankInfo {
   universityName: string;
   profileImageUrl?: string | null;
   totalCount?: number;
-  isInTop10?: boolean;
   ranking: number;
 }
 
@@ -98,10 +97,22 @@ export default function MyRankCard({
         </div>
       </div>
 
-      {myInfo.isInTop10 && (
+      {myInfo.ranking <= 10 && (
+        <div className="flex items-center gap-2 text-sm text-yellow-600 bg-yellow-50 rounded-lg p-2">
+          <Trophy className="w-4 h-4" />
+          <span>상위 10위 안에 들었습니다! 🏆</span>
+        </div>
+      )}
+      {myInfo.ranking > 10 && myInfo.ranking <= 50 && (
         <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 rounded-lg p-2">
           <Trophy className="w-4 h-4" />
-          <span>상위 10위 안에 들었습니다!</span>
+          <span>상위 50위 안에 들었습니다! 🥈</span>
+        </div>
+      )}
+      {myInfo.ranking > 50 && myInfo.ranking <= 100 && (
+        <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 rounded-lg p-2">
+          <Trophy className="w-4 h-4" />
+          <span>상위 100위 안에 들었습니다! 🥉</span>
         </div>
       )}
     </div>
