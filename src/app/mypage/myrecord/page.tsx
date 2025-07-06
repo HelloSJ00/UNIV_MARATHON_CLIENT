@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import CommonHeader from "../../../components/common/CommonHeader";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getRecords } from "./api/getRecords";
 import MyRecordList from "./components/MyRecordList";
 import UploadRecordButton from "./components/UploadRecordButton";
@@ -19,6 +19,8 @@ interface Record {
 
 export default function MyRecordPage() {
   const [showAll, setShowAll] = useState(false);
+  const queryClient = useQueryClient();
+
   const { data: recordsResponse, isLoading } = useQuery({
     queryKey: ["records"],
     queryFn: getRecords,
@@ -27,6 +29,11 @@ export default function MyRecordPage() {
 
   const handleViewDetail = (url: string) => {
     window.open(url, "_blank");
+  };
+
+  const handleRecordsUpdate = (newRecords: Record[]) => {
+    // Query cache를 업데이트하여 새로운 데이터를 반영
+    queryClient.setQueryData(["records"], { data: newRecords });
   };
 
   return (
@@ -39,6 +46,7 @@ export default function MyRecordPage() {
           showAll={showAll}
           setShowAll={setShowAll}
           onViewDetail={handleViewDetail}
+          onRecordsUpdate={handleRecordsUpdate}
         />
         <UploadRecordButton />
         <MyRecordGuide />
