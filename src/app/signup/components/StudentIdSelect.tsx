@@ -27,7 +27,7 @@ function StudentIdSelect({ register, errors, setValue }: StudentIdSelectProps) {
           <SelectValue placeholder="입학년도를 선택하세요" />
         </SelectTrigger>
         <SelectContent className="rounded-2xl">
-          {Array.from({ length: 20 }, (_, i) => 2025 - i).map((year) => (
+          {Array.from({ length: 30 }, (_, i) => 2025 - i).map((year) => (
             <SelectItem
               key={year}
               value={year.toString()}
