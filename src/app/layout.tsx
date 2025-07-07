@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import QueryProvider from "@/components/providers/QueryProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         <QueryProvider>
           <ProtectedRoute>{children}</ProtectedRoute>
         </QueryProvider>
+        <Analytics />
       </body>
     </html>
   );
