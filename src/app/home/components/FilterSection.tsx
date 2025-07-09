@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import SegmentedControl from "./SegmentedControl";
+import type { User } from "@/store/auth";
 
 interface FilterSectionProps {
   isFilterExpanded: boolean;
@@ -31,7 +32,7 @@ interface FilterSectionProps {
   universities: string[];
   isLoadingUniversities: boolean;
   accessToken: string | null;
-  user: Record<string, unknown> | null;
+  user: User | null;
   selectedGraduationStatus: "ENROLLED" | "GRADUATED" | "ALL";
   setSelectedGraduationStatus: (v: "ENROLLED" | "GRADUATED" | "ALL") => void;
 }
@@ -256,6 +257,43 @@ export default function FilterSection({
                 </div>
               </div>
             </button>
+            {/* 우리학교만 보기 버튼: 로그인+user 있을 때만 노출 */}
+            {accessToken && user && typeof user.universityName === "string" && (
+              <button
+                onClick={() => {
+                  setIsIntegratedRanking(false);
+                  setSelectedSchool(user.universityName);
+                  setSearchQuery(user.universityName);
+                }}
+                className={`w-full p-4 rounded-2xl border-2 transition-all duration-200 mt-2 ${
+                  !isIntegratedRanking && selectedSchool === user.universityName
+                    ? "bg-green-500 border-green-500 text-white"
+                    : "bg-green-50 border-green-200 text-green-800 hover:bg-green-100"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-left">
+                    <div className="font-medium">우리학교만 보기</div>
+                    <p className="text-sm mt-1 opacity-90">
+                      {user.universityName} 학생들의 랭킹을 확인합니다
+                    </p>
+                  </div>
+                  <div
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                      !isIntegratedRanking &&
+                      selectedSchool === user.universityName
+                        ? "border-white bg-white"
+                        : "border-green-400 bg-transparent"
+                    }`}
+                  >
+                    {!isIntegratedRanking &&
+                      selectedSchool === user.universityName && (
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      )}
+                  </div>
+                </div>
+              </button>
+            )}
           </div>
 
           {/* Event Selection */}

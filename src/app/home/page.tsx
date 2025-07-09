@@ -18,13 +18,7 @@ import {
   getUniversityRankings,
   UniversityRanking,
 } from "./api/getUniversityRankings";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import SegmentedControl from "./components/SegmentedControl";
 import Image from "next/image";
 
 export default function HomePage() {
@@ -48,10 +42,7 @@ export default function HomePage() {
   const [universities, setUniversities] = useState<string[]>([]);
   const [isLoadingUniversities, setIsLoadingUniversities] = useState(true);
   const accessToken = useAuthStore((state) => state.accessToken);
-  const user = useAuthStore((state) => state.user) as Record<
-    string,
-    unknown
-  > | null;
+  const user = useAuthStore((state) => state.user);
   const [openCard, setOpenCard] = useState<string | null>(null);
   const [rankingType, setRankingType] = useState<"personal" | "university">(
     "personal"
@@ -184,6 +175,12 @@ export default function HomePage() {
       setHasSearchedUniversityRanking(false);
     }
   }, [rankingType]);
+
+  const eventOptions = [
+    { label: "10km", value: "TEN_KM" },
+    { label: "하프마라톤", value: "HALF" },
+    { label: "풀마라톤", value: "FULL" },
+  ];
 
   return (
     <div className="min-h-screen bg-white text-black max-w-md mx-auto">
@@ -380,27 +377,14 @@ export default function HomePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       종목 선택
                     </label>
-                    <Select
+                    {/* 기존 Select → SegmentedControl로 변경 */}
+                    <SegmentedControl
+                      options={eventOptions}
                       value={selectedEvent}
-                      onValueChange={(value) =>
+                      onChange={(value: string) =>
                         setSelectedEvent(value as "TEN_KM" | "HALF" | "FULL")
                       }
-                    >
-                      <SelectTrigger className="w-full h-12 rounded-2xl border-gray-200 bg-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl">
-                        <SelectItem value="TEN_KM" className="rounded-xl">
-                          10km
-                        </SelectItem>
-                        <SelectItem value="HALF" className="rounded-xl">
-                          하프마라톤
-                        </SelectItem>
-                        <SelectItem value="FULL" className="rounded-xl">
-                          풀마라톤
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    />
                   </div>
 
                   <Button
