@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Select,
   SelectContent,
@@ -6,11 +8,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Search, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
-import React from "react";
-import { FixedSizeList as List, ListChildComponentProps } from "react-window";
+import SegmentedControl from "./SegmentedControl";
 
 interface FilterSectionProps {
   isFilterExpanded: boolean;
@@ -36,42 +36,23 @@ interface FilterSectionProps {
   setSelectedGraduationStatus: (v: "ENROLLED" | "GRADUATED" | "ALL") => void;
 }
 
-const genders = [
+const eventOptions = [
+  { value: "TEN_KM", label: "10km" },
+  { value: "HALF", label: "하프" },
+  { value: "FULL", label: "풀" },
+];
+
+const genderOptions = [
   { value: "ALL", label: "전체" },
   { value: "MALE", label: "남성" },
   { value: "FEMALE", label: "여성" },
 ];
 
-const graduationStatuses = [
+const graduationOptions = [
   { value: "ALL", label: "전체" },
   { value: "ENROLLED", label: "재학생" },
   { value: "GRADUATED", label: "졸업생" },
 ];
-
-// 가상화 리스트 아이템
-const VirtualizedSelectItem = ({
-  index,
-  style,
-  data,
-}: ListChildComponentProps<{
-  items: string[];
-  onSelect: (item: string) => void;
-}>) => {
-  const { items, onSelect } = data;
-  const item = items[index];
-  return (
-    <div style={style}>
-      <SelectItem
-        key={item}
-        value={item}
-        className="rounded-xl"
-        onSelect={() => onSelect(item)}
-      >
-        {item}
-      </SelectItem>
-    </div>
-  );
-};
 
 export default function FilterSection({
   isFilterExpanded,
@@ -109,6 +90,21 @@ export default function FilterSection({
     }
   };
 
+  const getEventLabel = (event: string) => {
+    const option = eventOptions.find((opt) => opt.value === event);
+    return option?.label || event;
+  };
+
+  const getGenderLabel = (gender: string) => {
+    const option = genderOptions.find((opt) => opt.value === gender);
+    return option?.label || gender;
+  };
+
+  const getGraduationLabel = (status: string) => {
+    const option = graduationOptions.find((opt) => opt.value === status);
+    return option?.label || status;
+  };
+
   return (
     <div className="bg-gray-50 rounded-3xl overflow-hidden border border-gray-200 shadow-sm transition-all">
       {/* Filter Header */}
@@ -136,7 +132,17 @@ export default function FilterSection({
                 )}
                 {selectedEvent && (
                   <span className="px-2 py-1 bg-black text-white text-xs rounded-full">
-                    {selectedEvent}
+                    {getEventLabel(selectedEvent)}
+                  </span>
+                )}
+                {selectedGender !== "ALL" && (
+                  <span className="px-2 py-1 bg-black text-white text-xs rounded-full">
+                    {getGenderLabel(selectedGender)}
+                  </span>
+                )}
+                {selectedGraduationStatus !== "ALL" && (
+                  <span className="px-2 py-1 bg-black text-white text-xs rounded-full">
+                    {getGraduationLabel(selectedGraduationStatus)}
                   </span>
                 )}
               </div>
@@ -148,6 +154,7 @@ export default function FilterSection({
           <ChevronDown className="w-5 h-5 text-gray-500" />
         )}
       </div>
+
       {/* Filter Content */}
       {isFilterExpanded && (
         <div className="px-6 pb-6 space-y-6">
@@ -195,21 +202,17 @@ export default function FilterSection({
                     학교 목록을 불러오는 중...
                   </div>
                 ) : filteredSchools.length > 0 ? (
-                  <List
-                    height={200}
-                    itemCount={filteredSchools.length}
-                    itemSize={40}
-                    width="100%"
-                    itemData={{
-                      items: filteredSchools,
-                      onSelect: (school: string) => {
-                        setSelectedSchool(school);
-                        setSearchQuery(school);
-                      },
-                    }}
-                  >
-                    {VirtualizedSelectItem}
-                  </List>
+                  <div className="max-h-48 overflow-y-auto">
+                    {filteredSchools.map((school) => (
+                      <SelectItem
+                        key={school}
+                        value={school}
+                        className="rounded-xl"
+                      >
+                        {school}
+                      </SelectItem>
+                    ))}
+                  </div>
                 ) : (
                   <div className="p-2 text-sm text-gray-500 text-center">
                     검색 결과가 없습니다
@@ -218,111 +221,87 @@ export default function FilterSection({
               </SelectContent>
             </Select>
           </div>
-          {/* Integrated Ranking Checkbox */}
-          <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-2xl border border-blue-200">
-            <Checkbox
-              id="integrated-ranking"
-              checked={isIntegratedRanking}
-              onCheckedChange={handleIntegratedRankingChange}
-              className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
-            />
-            <div className="flex-1">
-              <label
-                htmlFor="integrated-ranking"
-                className="text-sm font-medium text-blue-800 cursor-pointer"
-              >
-                통합 랭킹으로 보기
-              </label>
-              <p className="text-xs text-blue-600 mt-1">
-                {!accessToken || !user
-                  ? "로그인하지 않은 사용자는 통합 랭킹만 확인할 수 있습니다"
-                  : "전국 모든 대학생 중에서의 순위를 확인합니다"}
-              </p>
-            </div>
+
+          {/* Integrated Ranking Button */}
+          <div className="space-y-2">
+            <button
+              onClick={() =>
+                handleIntegratedRankingChange(!isIntegratedRanking)
+              }
+              className={`w-full p-4 rounded-2xl border-2 transition-all duration-200 ${
+                isIntegratedRanking
+                  ? "bg-blue-500 border-blue-500 text-white"
+                  : "bg-blue-50 border-blue-200 text-blue-800 hover:bg-blue-100"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-left">
+                  <div className="font-medium">통합 랭킹으로 보기</div>
+                  <p className="text-sm mt-1 opacity-90">
+                    {!accessToken || !user
+                      ? "로그인하지 않은 사용자는 통합 랭킹만 확인할 수 있습니다"
+                      : "전국 모든 대학생 중에서의 순위를 확인합니다"}
+                  </p>
+                </div>
+                <div
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                    isIntegratedRanking
+                      ? "border-white bg-white"
+                      : "border-blue-400 bg-transparent"
+                  }`}
+                >
+                  {isIntegratedRanking && (
+                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                  )}
+                </div>
+              </div>
+            </button>
           </div>
+
           {/* Event Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700">
               종목 선택
             </label>
-            <Select
+            <SegmentedControl
+              options={eventOptions}
               value={selectedEvent}
-              onValueChange={(value) =>
+              onChange={(value) =>
                 setSelectedEvent(value as "TEN_KM" | "HALF" | "FULL")
               }
-            >
-              <SelectTrigger className="w-full h-12 rounded-2xl border-gray-200 bg-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl">
-                <SelectItem value="TEN_KM" className="rounded-xl">
-                  10km
-                </SelectItem>
-                <SelectItem value="HALF" className="rounded-xl">
-                  하프마라톤
-                </SelectItem>
-                <SelectItem value="FULL" className="rounded-xl">
-                  풀마라톤
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            />
           </div>
+
           {/* Gender Selection */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-sm font-medium text-gray-700">
               성별 선택
             </label>
-            <Select
+            <SegmentedControl
+              options={genderOptions}
               value={selectedGender}
-              onValueChange={(value) =>
+              onChange={(value) =>
                 setSelectedGender(value as "MALE" | "FEMALE" | "ALL")
               }
-            >
-              <SelectTrigger className="w-full h-12 rounded-2xl border-gray-200 bg-white">
-                <SelectValue placeholder="성별을 선택하세요" />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl">
-                {genders.map((gender) => (
-                  <SelectItem
-                    key={gender.value}
-                    value={gender.value}
-                    className="rounded-xl"
-                  >
-                    {gender.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
+
           {/* Graduation Status Selection */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-sm font-medium text-gray-700">
               재학생/졸업생 구분
             </label>
-            <Select
+            <SegmentedControl
+              options={graduationOptions}
               value={selectedGraduationStatus}
-              onValueChange={(value) =>
+              onChange={(value) =>
                 setSelectedGraduationStatus(
                   value as "ENROLLED" | "GRADUATED" | "ALL"
                 )
               }
-            >
-              <SelectTrigger className="w-full h-12 rounded-2xl border-gray-200 bg-white">
-                <SelectValue placeholder="재학 상태를 선택하세요" />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl">
-                {graduationStatuses.map((status) => (
-                  <SelectItem
-                    key={status.value}
-                    value={status.value}
-                    className="rounded-xl"
-                  >
-                    {status.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
+
           {/* Action Buttons */}
           <div className="flex gap-3">
             <Button
@@ -346,7 +325,7 @@ export default function FilterSection({
             <Button
               onClick={handleResetFilter}
               variant="outline"
-              className="px-4 h-12 border-gray-200 hover:bg-gray-50 rounded-2xl"
+              className="px-4 h-12 border-gray-200 hover:bg-gray-50 rounded-2xl bg-transparent"
             >
               초기화
             </Button>
