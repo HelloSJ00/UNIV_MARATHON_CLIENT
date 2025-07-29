@@ -6,8 +6,21 @@ import ProfileSection from "./components/ProfileSection";
 import RecordSection from "./components/RecordSection";
 import RegisterRecordButton from "./components/RegisterRecordButton";
 import LogoutButton from "./components/LogoutButton";
+import StravaConnect from "./components/StravaConnect";
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function MyPage() {
+  const searchParams = useSearchParams();
+  const setStravaConnected = useAuthStore((state) => state.setStravaConnected);
+
+  useEffect(() => {
+    const stravaStatus = searchParams.get("strava");
+    if (stravaStatus === "success") {
+      setStravaConnected();
+    }
+  }, [searchParams, setStravaConnected]);
+
   const router = useRouter();
   const { user, clearAuth } = useAuthStore();
 
@@ -33,6 +46,7 @@ export default function MyPage() {
       <div className="p-4 space-y-6">
         <ProfileSection user={user} />
         <RecordSection user={user} />
+        {user.universityVerified && <StravaConnect />}
         <RegisterRecordButton universityVerified={user.universityVerified} />
         <LogoutButton onLogout={handleLogout} />
       </div>

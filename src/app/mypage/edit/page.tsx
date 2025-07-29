@@ -221,11 +221,15 @@ export default function EditProfilePage() {
 
       // 서버에서 받은 최신 유저 정보로 zustand 업데이트
       setUser({
+        totalDistanceKm: user?.totalDistanceKm ?? 0,
+        totalActivityCount: user?.totalActivityCount ?? 0,
+        avgPaceTime: user?.avgPaceTime ?? 0,
         ...response.data,
         role: response.data.role === "ROLE_ADMIN" ? "ROLE_ADMIN" : "ROLE_USER",
         nameVisible: formData.isNameVisible,
         studentNumberVisible: formData.isStudentNumberVisible,
         majorVisible: formData.isMajorVisible,
+        stravaConnected: user?.stravaConnected || false,
         runningRecords: {
           HALF: response.data.runningRecords.HALF
             ? {

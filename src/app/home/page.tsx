@@ -16,10 +16,17 @@ import InitialMessage from "./components/InitialMessage";
 import MyRankCard from "./components/MyRankCard";
 import {
   getUniversityRankings,
-  UniversityRanking,
+  type UniversityRanking,
 } from "./api/getUniversityRankings";
 import SegmentedControl from "./components/SegmentedControl";
 import Image from "next/image";
+import MileageFilterSection from "./components/MileageFilterSection";
+import MileageRankingList, {
+  MileageRunner as MileageRanking,
+} from "./components/MileageRankingList";
+import { getMileageRankings } from "./api/getMileageRankings";
+import MyMileageRankCard from "./components/MyMileageRankCard";
+import { MyMileageRecord } from "./api/getMileageRankings";
 
 export default function HomePage() {
   const [selectedSchool, setSelectedSchool] = useState("");
@@ -44,9 +51,12 @@ export default function HomePage() {
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
   const [openCard, setOpenCard] = useState<string | null>(null);
-  const [rankingType, setRankingType] = useState<"personal" | "university">(
-    "personal"
-  );
+  const [rankingType, setRankingType] = useState<
+    | "personalRecord"
+    | "personalMileage"
+    | "universityFinisher"
+    | "universityMileage"
+  >("personalRecord");
   const [universityRankings, setUniversityRankings] = useState<
     UniversityRanking[]
   >([]);
@@ -56,6 +66,17 @@ export default function HomePage() {
     useState(false);
   const [isUniversityRankingExpanded, setIsUniversityRankingExpanded] =
     useState(true);
+
+  // 개인 마일리지 관련 상태 추가
+  const [mileageRankingsData, setMileageRankingsData] = useState<
+    MileageRanking[]
+  >([]);
+  const [myMileageRecordData, setMyMileageRecordData] =
+    useState<MyMileageRecord | null>(null);
+  const [isLoadingMileageRankings, setIsLoadingMileageRankings] =
+    useState(false);
+  const [hasSearchedMileage, setHasSearchedMileage] = useState(false);
+  const [isMileageFilterExpanded, setIsMileageFilterExpanded] = useState(false);
 
   // 대학교 목록 가져오기
   useEffect(() => {
@@ -90,6 +111,7 @@ export default function HomePage() {
     setIsLoadingRankings(true);
     setHasSearched(true);
     setIsFilterExpanded(false);
+
     try {
       const { rankings, myrecord } = await getRunningRankings(
         selectedEvent,
@@ -105,6 +127,7 @@ export default function HomePage() {
         ...runner,
         rank: index + 1,
       }));
+
       setRankingsData(rerankedData);
       setMyRecordData(myrecord);
     } catch (error) {
@@ -112,6 +135,29 @@ export default function HomePage() {
       alert("랭킹 조회에 실패했습니다.");
     } finally {
       setIsLoadingRankings(false);
+    }
+  };
+
+  // 개인 마일리지 랭킹 조회 함수 추가
+  const fetchMileageRankings = async () => {
+    setIsLoadingMileageRankings(true);
+    setHasSearchedMileage(true);
+    setIsMileageFilterExpanded(false);
+
+    try {
+      const response = await getMileageRankings(
+        selectedGender,
+        isIntegratedRanking ? undefined : searchQuery,
+        accessToken ?? undefined,
+        selectedGraduationStatus
+      );
+      setMileageRankingsData(response.rankings);
+      setMyMileageRecordData(response.myrecord);
+    } catch (error) {
+      console.error("마일리지 랭킹 조회 실패:", error);
+      alert("마일리지 랭킹 조회에 실패했습니다.");
+    } finally {
+      setIsLoadingMileageRankings(false);
     }
   };
 
@@ -126,6 +172,9 @@ export default function HomePage() {
     setRankingsData([]);
     setMyRecordData(null);
     setHasSearched(false);
+    // 마일리지 관련 상태도 초기화
+    setMileageRankingsData([]);
+    setHasSearchedMileage(false);
   };
 
   // 성별 라벨 가져오기
@@ -138,6 +187,7 @@ export default function HomePage() {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
+
     return `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
       .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
@@ -147,9 +197,11 @@ export default function HomePage() {
     let distance = 10;
     if (type === "HALF") distance = 21.0975;
     if (type === "FULL") distance = 42.195;
+
     const pace = seconds / distance;
     const paceMin = Math.floor(pace / 60);
     const paceSec = Math.round(pace % 60);
+
     return `${paceMin}'${paceSec.toString().padStart(2, "0")}"/km`;
   };
 
@@ -168,9 +220,15 @@ export default function HomePage() {
     }
   };
 
+  // 현재 월 가져오기
+  const getCurrentMonth = () => {
+    const now = new Date();
+    return `${now.getFullYear()}년 ${now.getMonth() + 1}월`;
+  };
+
   // useEffect에서 자동 조회 제거
   useEffect(() => {
-    if (rankingType === "personal") {
+    if (rankingType === "personalRecord") {
       setUniversityRankings([]);
       setHasSearchedUniversityRanking(false);
     }
@@ -184,27 +242,54 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white text-black max-w-md mx-auto">
-      {/* 랭킹 타입 토글 */}
-      <div className="flex justify-center gap-2 pt-4 pb-2">
-        <button
-          className={`px-4 py-2 rounded-l-xl font-bold ${
-            rankingType === "personal" ? "bg-black text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setRankingType("personal")}
-        >
-          개인랭킹
-        </button>
-        <button
-          className={`px-4 py-2 rounded-r-xl font-bold ${
-            rankingType === "university" ? "bg-black text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setRankingType("university")}
-        >
-          학교랭킹
-        </button>
+      {/* 랭킹 타입 토글 - 탭 형태 */}
+      <div className="p-4">
+        <div className="flex bg-gray-100 rounded-2xl p-1 overflow-x-auto">
+          <button
+            className={`flex-1 px-3 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
+              rankingType === "personalRecord"
+                ? "bg-black text-white shadow-sm"
+                : "text-gray-600 hover:text-black"
+            }`}
+            onClick={() => setRankingType("personalRecord")}
+          >
+            개인 기록
+          </button>
+          <button
+            className={`flex-1 px-3 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
+              rankingType === "personalMileage"
+                ? "bg-black text-white shadow-sm"
+                : "text-gray-600 hover:text-black"
+            }`}
+            onClick={() => setRankingType("personalMileage")}
+          >
+            개인 마일리지
+          </button>
+          <button
+            className={`flex-1 px-3 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
+              rankingType === "universityFinisher"
+                ? "bg-black text-white shadow-sm"
+                : "text-gray-600 hover:text-black"
+            }`}
+            onClick={() => setRankingType("universityFinisher")}
+          >
+            학교 완주자
+          </button>
+          <button
+            className={`flex-1 px-3 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
+              rankingType === "universityMileage"
+                ? "bg-black text-white shadow-sm"
+                : "text-gray-600 hover:text-black"
+            }`}
+            onClick={() => setRankingType("universityMileage")}
+          >
+            학교 마일리지
+          </button>
+        </div>
       </div>
+
       {/* 필터/리스트 분기 */}
-      {rankingType === "personal" ? (
+      {rankingType === "personalRecord" ? (
         <>
           {/* Search Filter Section */}
           <div className="p-4">
@@ -283,6 +368,7 @@ export default function HomePage() {
                     )}
                   </div>
                 </div>
+
                 {/* 안내문구 */}
                 {isLoadingRankings ? (
                   <div className="text-center py-12">
@@ -334,6 +420,178 @@ export default function HomePage() {
             <InitialMessage setIsFilterExpanded={setIsFilterExpanded} />
           )}
         </>
+      ) : rankingType === "personalMileage" ? (
+        <>
+          {/* 개인 마일리지 필터 섹션 */}
+          <div className="p-4">
+            <MileageFilterSection
+              isFilterExpanded={isMileageFilterExpanded}
+              setIsFilterExpanded={setIsMileageFilterExpanded}
+              selectedGender={selectedGender}
+              setSelectedGender={setSelectedGender}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              isIntegratedRanking={isIntegratedRanking}
+              setIsIntegratedRanking={setIsIntegratedRanking}
+              isLoadingRankings={isLoadingMileageRankings}
+              fetchRankings={fetchMileageRankings}
+              handleResetFilter={handleResetFilter}
+              universities={universities}
+              isLoadingUniversities={isLoadingUniversities}
+            />
+          </div>
+
+          {/* 마일리지 랭킹 섹션 */}
+          {hasSearchedMileage ? (
+            <div className="px-4 pb-6">
+              <div className="bg-gray-50 rounded-3xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <svg
+                    className="w-5 h-5 text-orange-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                    />
+                  </svg>
+                  <h2 className="text-lg font-bold">
+                    {isIntegratedRanking
+                      ? `전국 개인 마일리지 랭킹 (${getCurrentMonth()})`
+                      : `${searchQuery} 개인 마일리지 랭킹 (${getCurrentMonth()})`}
+                  </h2>
+                </div>
+
+                {/* 검색 조건 표시 */}
+                <div className="mb-4 p-3 bg-white rounded-2xl border border-gray-200">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
+                    <span>검색 조건:</span>
+                    <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                      스트라바 연동 유저
+                    </span>
+                    <span>•</span>
+                    <span className="font-medium text-black">
+                      이번달 마일리지
+                    </span>
+                    <span>•</span>
+                    <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                      {getGenderLabel(selectedGender)}
+                    </span>
+                    {!isIntegratedRanking && searchQuery && (
+                      <>
+                        <span>•</span>
+                        <span className="font-medium text-black">
+                          {searchQuery}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {isLoadingMileageRankings ? (
+                  <div className="text-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-gray-400" />
+                    <p className="text-gray-500">
+                      마일리지 랭킹을 불러오는 중...
+                    </p>
+                  </div>
+                ) : mileageRankingsData.length > 0 ? (
+                  <>
+                    <MyMileageRankCard
+                      myInfo={myMileageRecordData ?? undefined}
+                    />
+                    <p className="text-sm text-gray-600 mb-6">
+                      {isIntegratedRanking
+                        ? `전국 스트라바 연동 유저 ${getGenderLabel(
+                            selectedGender
+                          )} 상위 ${
+                            mileageRankingsData.length
+                          }명의 이번달 마일리지 랭킹입니다`
+                        : `${searchQuery} 스트라바 연동 유저 ${getGenderLabel(
+                            selectedGender
+                          )} 상위 ${
+                            mileageRankingsData.length
+                          }명의 이번달 마일리지 랭킹입니다`}
+                    </p>
+                    <MileageRankingList
+                      rankingsData={mileageRankingsData}
+                      openCard={openCard}
+                      setOpenCard={setOpenCard}
+                    />
+                    <div className="mt-6 text-center">
+                      <Button
+                        variant="ghost"
+                        className="text-gray-600 hover:text-black rounded-full"
+                      >
+                        더 보기
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500">검색 결과가 없습니다</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="px-4 pb-6">
+              <div className="bg-gray-50 rounded-3xl p-6 text-center">
+                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-orange-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold mb-2">개인 마일리지 랭킹</h3>
+                <p className="text-gray-600 mb-4">
+                  스트라바 연동 유저들의
+                  <br />
+                  이번달 마일리지 랭킹을 확인해보세요
+                </p>
+                <div className="flex flex-col gap-2 text-sm text-gray-500 mb-4">
+                  <div className="flex items-center gap-2 justify-center">
+                    <svg
+                      className="w-4 h-4 text-orange-500"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.599h4.172L10.463 0l-7 13.828h4.172" />
+                    </svg>
+                    <span>스트라바 연동 필수</span>
+                  </div>
+                  <div className="flex items-center gap-2 justify-center">
+                    <Trophy className="w-4 h-4 text-orange-500" />
+                    <span>월간 마일리지 기준 랭킹</span>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setIsMileageFilterExpanded(true)}
+                  variant="outline"
+                  className="border-gray-200 hover:bg-gray-100 rounded-2xl"
+                >
+                  검색 시작하기
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         <>
           {/* 학교랭킹: 종목만 선택하는 필터 + 조회하기 버튼 */}
@@ -370,6 +628,7 @@ export default function HomePage() {
                   )}
                 </span>
               </div>
+
               {/* 펼쳐진 경우에만 필터/버튼 노출 */}
               {isUniversityRankingExpanded && (
                 <div className="space-y-4 px-6 pb-6">
@@ -386,7 +645,6 @@ export default function HomePage() {
                       }
                     />
                   </div>
-
                   <Button
                     className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-2xl font-bold"
                     onClick={fetchUniversityRankings}
@@ -459,6 +717,7 @@ export default function HomePage() {
                       : "풀마라톤"}
                   </span>
                 </h2>
+
                 {/* 검색 조건 표시 */}
                 <div className="mb-4 p-3 bg-white rounded-2xl border border-gray-200">
                   <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
@@ -472,10 +731,12 @@ export default function HomePage() {
                     </span>
                   </div>
                 </div>
+
                 {/* 안내문구는 학교랭킹에만 */}
                 <p className="text-sm text-gray-600 mb-6">
                   전국 상위 30개의 학교 랭킹을 확인할 수 있습니다
                 </p>
+
                 {isLoadingUniversityRankings ? (
                   <div className="flex justify-center items-center h-24">
                     <Loader2 className="animate-spin w-6 h-6 text-gray-400" />

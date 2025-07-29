@@ -29,13 +29,17 @@ export interface User {
   profileImageUrl: string | null;
   role: "ROLE_USER" | "ROLE_ADMIN";
   createdAt: string;
-  universityEmail: string;
+  universityEmail: string | null;
   runningRecords: RunningRecords;
   universityVerified: boolean;
   nameVisible: boolean;
   studentNumberVisible: boolean;
   majorVisible: boolean;
   graduationStatus: string;
+  totalDistanceKm: number;
+  totalActivityCount: number;
+  avgPaceTime: number;
+  stravaConnected: boolean;
 }
 
 interface AuthState {
@@ -43,12 +47,17 @@ interface AuthState {
   user: User | null;
   setAccessToken: (token: string | null) => void;
   setUser: (user: User | null) => void;
+  setStravaConnected: () => void; // ✅ 추가
   clearAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
+      setStravaConnected: () =>
+        set((state) => ({
+          user: state.user ? { ...state.user, isStravaConnected: true } : null,
+        })),
       accessToken: null,
       user: null,
       setAccessToken: (token) => set({ accessToken: token }),
