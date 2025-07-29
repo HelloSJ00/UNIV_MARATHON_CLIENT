@@ -27,8 +27,19 @@ import MileageRankingList, {
 import { getMileageRankings } from "./api/getMileageRankings";
 import MyMileageRankCard from "./components/MyMileageRankCard";
 import { MyMileageRecord } from "./api/getMileageRankings";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function HomePage() {
+function HomePageContent() {
+  const searchParams = useSearchParams();
+  const setStravaConnected = useAuthStore((state) => state.setStravaConnected);
+
+  useEffect(() => {
+    const stravaStatus = searchParams.get("strava");
+    if (stravaStatus === "success") {
+      setStravaConnected();
+    }
+  }, [searchParams, setStravaConnected]);
   const [selectedSchool, setSelectedSchool] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<
     "TEN_KM" | "HALF" | "FULL"
@@ -814,5 +825,19 @@ export default function HomePage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          로딩중...
+        </div>
+      }
+    >
+      <HomePageContent />
+    </Suspense>
   );
 }
