@@ -276,12 +276,12 @@ export default function HomePage() {
             학교 완주자
           </button>
           <button
-            className={`flex-1 px-3 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
+            className={`flex-1 px-3 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all opacity-50 cursor-not-allowed ${
               rankingType === "universityMileage"
                 ? "bg-black text-white shadow-sm"
-                : "text-gray-600 hover:text-black"
+                : "text-gray-600"
             }`}
-            onClick={() => setRankingType("universityMileage")}
+            disabled
           >
             학교 마일리지
           </button>
