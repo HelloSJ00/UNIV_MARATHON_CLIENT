@@ -9,8 +9,9 @@ import LogoutButton from "./components/LogoutButton";
 import StravaConnect from "./components/StravaConnect";
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function MyPage() {
+function MyPageContent() {
   const searchParams = useSearchParams();
   const setStravaConnected = useAuthStore((state) => state.setStravaConnected);
 
@@ -51,5 +52,19 @@ export default function MyPage() {
         <LogoutButton onLogout={handleLogout} />
       </div>
     </div>
+  );
+}
+
+export default function MyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          로딩중...
+        </div>
+      }
+    >
+      <MyPageContent />
+    </Suspense>
   );
 }
