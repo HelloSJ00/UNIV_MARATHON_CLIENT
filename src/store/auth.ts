@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       setStravaConnected: () =>
         set((state) => ({
-          user: state.user ? { ...state.user, isStravaConnected: true } : null,
+          user: state.user ? { ...state.user, stravaConnected: true } : null,
         })),
       accessToken: null,
       user: null,
