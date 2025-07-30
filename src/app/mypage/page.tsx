@@ -34,7 +34,7 @@ export default function MyPage() {
       <div className="p-4 space-y-6">
         <ProfileSection user={user} />
         <RecordSection user={user} />
-        {user.universityVerified && <StravaConnect />}
+        {/* {user.universityVerified && <StravaConnect />} */}
         <RegisterRecordButton universityVerified={user.universityVerified} />
         <LogoutButton onLogout={handleLogout} />
       </div>
