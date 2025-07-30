@@ -6,7 +6,7 @@ import ProfileSection from "./components/ProfileSection";
 import RecordSection from "./components/RecordSection";
 import RegisterRecordButton from "./components/RegisterRecordButton";
 import LogoutButton from "./components/LogoutButton";
-import StravaConnect from "./components/StravaConnect";
+// import StravaConnect from "./components/StravaConnect";
 
 export default function MyPage() {
   const router = useRouter();
