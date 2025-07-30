@@ -8,7 +8,7 @@ export interface MileageRunner {
   name: string;
   gender: "MALE" | "FEMALE";
   universityName: string;
-  studentNumber: string | null;
+  studentNumber?: string | null;
   profileImageUrl: string | null;
   majorName: string;
   graduationStatus: "ENROLLED" | "GRADUATED";
@@ -214,9 +214,15 @@ export default function MileageRankingList({
                         </p>
                         <p
                           className="text-sm font-medium text-gray-800 truncate"
-                          title={runner.majorName || ""}
+                          title={
+                            runner.majorVisible
+                              ? runner.majorName || "정보 없음"
+                              : "비공개"
+                          }
                         >
-                          {runner.majorName || "-"}
+                          {runner.majorVisible
+                            ? runner.majorName || "정보 없음"
+                            : "비공개"}
                         </p>
                       </div>
                       <div className="min-w-0">
@@ -224,9 +230,11 @@ export default function MileageRankingList({
                           학번
                         </p>
                         <p className="text-sm font-medium text-gray-800">
-                          {runner.studentNumber
-                            ? `${runner.studentNumber}학번`
-                            : "-"}
+                          {runner.studentNumberVisible
+                            ? runner.studentNumber
+                              ? `${runner.studentNumber.substring(2, 4)}학번`
+                              : "정보 없음"
+                            : "비공개"}
                         </p>
                       </div>
                     </div>
