@@ -27,16 +27,16 @@ export const submitRecord = async (data: SubmitRecordRequest) => {
         response?: { status?: number; data?: { message?: string } };
       };
       if (axiosError.response?.status === 429) {
-        const msg =
+        // ❌ alert 제거
+        // ✅ 예외 메시지 포함하여 다시 throw
+        throw new Error(
           axiosError.response?.data?.message ||
-          "이번 달 호출 횟수를 모두 사용했습니다.";
-        alert(msg); // ✅ 사용자에게 경고
-        return;
+            "이번 달 호출 횟수를 모두 사용했습니다."
+        );
       }
     }
 
-    // 그 외의 오류는 따로 처리
     console.error("예상치 못한 오류:", error);
-    alert("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    throw new Error("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
   }
 };

@@ -34,14 +34,19 @@ export default function UploadRecordPage() {
       alert("기록증을 업로드 해주세요");
       return;
     }
+
     setIsSubmitting(true);
+
     try {
       const { url } = await uploadToS3(selectedFile);
       await submitRecord({ s3ImageUrl: url });
       alert("기록증이 성공적으로 제출되었습니다!");
       router.push("/mypage/myrecord");
-    } catch {
-      alert("기록증 제출에 실패했습니다. 다시 시도해주세요.");
+    } catch (e: unknown) {
+      // ✅ 여기서만 alert 처리
+      const message =
+        e instanceof Error ? e.message : "기록증 제출에 실패했습니다.";
+      alert(message);
     } finally {
       setIsSubmitting(false);
     }
