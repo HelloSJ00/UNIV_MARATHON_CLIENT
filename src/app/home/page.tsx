@@ -215,7 +215,7 @@ function HomePageContent() {
           >
             개인 기록
           </button>
-          <button
+          {/* <button
             className={`flex-1 px-3 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
               rankingType === "personalMileage"
                 ? "bg-black text-white shadow-sm"
@@ -224,7 +224,7 @@ function HomePageContent() {
             onClick={() => setRankingType("personalMileage")}
           >
             개인 마일리지
-          </button>
+          </button> */}
           <button
             className={`flex-1 px-3 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
               rankingType === "universityFinisher"
@@ -235,7 +235,7 @@ function HomePageContent() {
           >
             학교 완주자
           </button>
-          <button
+          {/* <button
             className={`flex-1 px-3 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all opacity-50 cursor-not-allowed ${
               rankingType === "universityMileage"
                 ? "bg-black text-white shadow-sm"
@@ -244,7 +244,7 @@ function HomePageContent() {
             disabled
           >
             학교 마일리지
-          </button>
+          </button> */}
         </div>
       </div>
 
